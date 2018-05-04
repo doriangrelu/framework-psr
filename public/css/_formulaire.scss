@@ -1,0 +1,61 @@
+@import "compass";
+
+$red: #FF0000;
+.required {
+  background: white url(../img/asterisk.png) 98% center no-repeat !important;
+}
+
+.form-control{
+  border-radius:0 !important;
+}
+
+input:focus {
+  box-shadow: 0px 0px 50px black;
+}
+
+input {
+  outline: none !important;
+}
+
+.error-data-entry {
+  width: 100%;
+  display: none !important;
+  text-align: left;
+  padding-top:1px;
+  color:$red;
+}
+
+.text-form {
+  color: #d45252 !important;
+}
+
+.form-control-danger {
+  border-color: $red;
+  background-image: none;
+  @include single-box-shadow($red, 0, 0, 1px);
+}
+
+input.form-control-danger:after{
+  content:"Erreur" !important;
+  width: 100px;
+  height: 50px;
+  color:red;
+}
+
+.form-control-danger + span {
+  display: block;
+  color: #FF0000 !important;
+}
+
+.form-control-success {
+  border-color: #56c93f;
+  @include single-box-shadow(#56c93f, 0, 0, 1px);
+}
+
+.form-control-not-required-empty {
+
+}
+
+input:valid, textarea:valid {
+  background-image: none;
+}

@@ -1,0 +1,28 @@
+{% extends parent_template %}
+{% block content %}
+    <h1>Gestion des factures</h1>
+    <hr>
+    <div class="row">
+        <div class="form-group col-6">
+            <label for="devis">Devis</label>
+            <select name="devis" id="devis">
+                <option value="none" class="form-control">Choix du devis</option>
+                {% for devis in devisListe.content %}
+                    <option value="{{ devis.idQ }}">N°{{ devis.slug }} -
+                        {{ devis.object }} -
+                        {{ text(devis.firstName) | capitalize ~" "~ text(devis.lastName) |upper }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-6">
+            <label for="type">Facture</label>
+            <select name="type" id="type">
+                <option value="none" class="form-control">Choix du type de facture</option>
+
+            </select>
+        </div>
+    </div>
+
+
+{% endblock %}

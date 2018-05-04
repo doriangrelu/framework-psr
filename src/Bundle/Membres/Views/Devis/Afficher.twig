@@ -1,0 +1,409 @@
+{% extends parent_template %}
+{% block content %}
+    {% set gender="Mr" %}
+    {% if client.gender=="f" %}
+        {% set gender="Mme" %}
+    {% endif %}
+    {% set type="particulier" %}
+    {% if client.siret %}
+        {% set type="professionnel" %}
+    {% endif %}
+    <h1>Devis N°{{ devis.slug }}</h1>
+    <hr>
+    <div class="row">
+        <div class="col-auto">
+            <a href="{{ path("membre.devis.pdf", {slug:devis.slug}) }}" class="btn btn-primary btn-lg" target="_blank">
+                Générer le PDF
+                <i class="fa fa-file-pdf-o"></i>
+            </a>
+        </div>
+        <div class="col-auto">
+            <a href="{{ path("facture.generer", {slug:devis.slug}) }}" class="btn btn-primary btn-lg" target="_blank">
+                Générer factures
+                <i class="fas fa-file-alt"></i>
+            </a>
+
+        </div>
+    </div>
+
+    <hr>
+    {% if modifiable %}
+    <form class="creationDevis" action="{{ path("membre.devis.update") }}" method="post"
+          data-not-check="true">
+        {{ csrf_input() }}
+        {% endif %}
+        <input type="hidden" value="{{ devis.id }}" name="id_devis">
+        <div class="row">
+            <div class="col-6">
+                <div class="card ">
+                    <div class="card-header bg-dark text-white">Information sur le devis</div>
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-6">
+                                <p>
+                                    <b>{{ gender~". "~text(client.firstName) | capitalize ~" "~ text(client.lastName) |upper }}</b>
+                                </p>
+                                <p>
+                                    <b>
+                                        {% if type=="particulier" %}
+                                            {{ type | capitalize }}
+                                        {% else %}
+                                            {{ type | capitalize }}: <br>
+                                            <ul>
+                                                <li>Siret: {{ client.siret }}</li>
+                                                <li>Raison sociale: {{ client.compagnyName | capitalize }}</li>
+                                            </ul>
+                                        {% endif %}
+                                    </b>
+                                </p>
+                            </div>
+                            {% if modifiable %}
+                                {{ field("object", {required:true, label:"Objet du devis", class:"field", divClass:"col-6", value:devis.object|capitalize}) }}
+                            {% else %}
+                                <b>Objet: {{ devis.object|capitalize }}</b>
+
+                            {% endif %}
+                        </div>
+                        {% if modifiable %}
+                            {{ field("join", {type:"textarea", value:devis.join|capitalize}) }}
+                        {% else %}
+                            Message à joindre au devis:
+                            <blockquote>
+                                <i>{{ devis.object|capitalize }}</i>
+                            </blockquote>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card ">
+                    <div class="card-header bg-dark text-white">Dates utiles</div>
+                    <div class="card-body">
+                        <div class="col-12">
+
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    data-target="#exampleModal">
+                                Historique
+                            </button>
+                            <hr>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Historique des états</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% if modifiable %}
+                                            <div class="form-group">
+                                                <label for="status">Modifier le status du devis</label>
+                                                <select class="form-control" name="id_status" id="status">
+                                                    {% for statusLine in statusListe %}
+                                                        <option value="{{ statusLine.id }}">{{ statusLine.name | capitalize }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        {% else %}
+                                            <p class="text-danger">Le status du devis ne permet plus de modifier ce
+                                                dernier.</p>
+                                        {% endif %}
+                                        <hr>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th>Etat</th>
+                                                <th>Date de changement</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% set i=1 %}
+                                            {% for line in historique.content %}
+                                                <tr {% if i==historique.nb %} class="bg-info text-white" {% endif %}>
+                                                    <td>{{ line.name|capitalize }}</td>
+                                                    <td>Le <b>{{ line.updated_at | date("d/m/Y à H:i") }}</b></td>
+                                                </tr>
+                                                {% set i = i + 1 %}
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if modifiable %}
+                            {{ field("validity_deadline", {required:true, class:"datepicker field", divClass:"col-6", value:devis.validityDeadline}) }}
+                            {{ field("deadline", { class:"datepicker", divClass:"col-6", value:devis.deadline}) }}
+                        {% else %}
+                            <ul>
+                                <li class="text-danger">Status du devis: <b>{{ status.name|capitalize }}</b></li>
+                                <li>Date de fin de validité: <b>{{ devis.validityDeadline | date("d/m/Y") }}</b>
+                                </li>
+                                <li>Date de fin du projet: <b>{{ text(devis.deadline | date("d/m/Y")) }}</b>
+                                </li>
+                            </ul>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if modifiable==false %}
+            <div class="unmodifiable hidden">
+
+            </div>
+        {% endif %}
+        <hr>
+        <h2>Lignes du devis</h2>
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+            <th class="id-table"></th>
+            <th class="id-table">Dénomination</th>
+            <th class="id-table">Unité</th>
+            <th class="id-table">Quantité</th>
+            <th class="id-table">Prix</th>
+            <th class="id-table">Total</th>
+            </thead>
+            <tbody class="lines">
+            {% set i =0 %}
+            {% for ligne in details %}
+                <tr class="lineQuotation">
+                    <td class="text-center">
+                        {% if modifiable %}
+                            <button type="button" class="btn btn-danger deleteLine">
+                                <i class="fa fa-2x fa-trash-o" aria-hidden="true"></i>
+                            </button>
+                        {% else %}
+                            {% if i==0 %}
+                                <i class="fa fa-3x fa-lock"></i>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if modifiable %}
+                            <textarea name="line[{{ i }}][description]" type="text" class="form-control field required"
+                                      placeholder="Dénomination"
+                                      rows="1"
+                                      cols="50"
+                                      autocomplete="off" spellcheck="true" wrap="hard"
+                                      data-required="true"
+                            >{{ ligne.description | capitalize }}</textarea>
+                        {% else %}
+                            {{ ligne.description|capitalize }}
+                        {% endif %}
+                    </td>
+                    <td class="">
+                        {% if modifiable %}
+                            <select class="form-control unityField" name="line[{{ i }}][id_unity_type]"
+                                    id="unity-{{ i }}"
+                                    data-required="true" {% if modifiable==false %}disabled{% endif %}>
+                                {% for unity in unities %}
+                                    <option value="{{ unity.id }}"
+                                            {% if ligne.idUnityType==unity.id %}selected{% endif %}
+                                            class="form-control unityField">
+                                        {{ unity.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            {% for unity in unities %}
+                                {% if ligne.idUnityType==unity.id %}
+                                    {{ unity.name }}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                    </td>
+                    <td class="qteLine">
+                        {% if modifiable %}
+                            <input name="line[{{ i }}][unity]" type="number" class="form-control required field"
+                                   placeholder="Qte"
+                                   min="0"
+                                   value="{{ ligne.unity }}"
+                                   data-required="true" data-type="number">
+                        {% else %}
+                            {% if ligne.idUnityType!=4 %}
+                                {{ ligne.unity }}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="priceLine">
+                        {% if modifiable %}
+                            <input name="line[{{ i }}][unity_price]" type="number" class="form-control required field"
+                                   placeholder="Prix"
+                                   min="0"
+                                   step="0.01"
+                                   value="{{ ligne.unityPrice }}"
+                                   data-required="true" data-type="number">
+                        {% else %}
+                            {% if ligne.idUnityType==4 %}
+                                <p class="text-danger">
+                                    -{{ ligne.unityPrice }}%
+                                </p>
+                            {% else %}
+                                {{ ligne.unityPrice }}€
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="{% if modifiable %}totalPriceLine{% endif %} text-center">
+                        {% if ligne.idUnityType==4 %}
+                            <p class="text-danger">-{{ ligne.subTotal }}€</p>
+                        {% else %}
+                            {{ ligne.subTotal }}€
+                        {% endif %}
+
+                    </td>
+                </tr>
+                {% set i = i +1 %}
+            {% endfor %}
+            <tr class="linesDevisNotPayments">
+
+            </tr>
+            {% set i=1 %}
+            {% for payment in payments %}
+                <tr class="bg-secondary paymentsLines">
+                    <td class="text-center inputHidden">
+                        {% if modifiable %}
+                            <button type="button" class="btn btn-danger deleteLineAcompte">
+                                <i class="fa fa-2x fa-trash-o" aria-hidden="true"></i>
+                            </button>
+                            <input type="hidden" class="rankHidden" name="acompte[{{ i }}][rank]" value="{{ i }}">
+                        {% endif %}
+                    </td>
+                    <td class="text-center libelle" colspan="3">
+                        Acompte N°{{ i }} (en %)
+                    </td>
+                    <td class="amount">
+                        {% if modifiable %}
+                            <input name="acompte[{{ i }}][amount]" class="form-control required amountField field"
+                                   type="number"
+                                   step="1"
+                                   value="{{ payment.amount }}"
+                                   min="1" data-required="true" data-type="number">
+                        {% else %}
+                            {{ payment.amount }}%
+                        {% endif %}
+                    </td>
+                    <td class="totalPaymentsLine text-center">
+                        {{ payment.subTotal }}€
+                    </td>
+                </tr>
+                {% set i= i + 1 %}
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <td class="text-center">
+                    {% if modifiable %}
+                        <button type="button" class="btn btn-dark addLine">
+                            Nouvelle ligne
+                        </button>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if modifiable %}
+                        <button type="button" class="btn btn-dark addPayments">
+                            Ajouter un acompte
+                        </button>
+                    {% endif %}
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="bg-dark text-center text-white {% if modifiable %}total{% endif %}">{{ total }}€</td>
+            </tr>
+            </tfoot>
+        </table>
+
+        <hr>
+        {% if modifiable %}
+        <button type="button" class="btn btn-danger btn-reload" data-dismiss="modal">Annuler les modifications</button>
+        <button type="submit" class="btn btn-primary">Sauvegarder les modifications</button>
+
+    </form>
+    {% endif %}
+
+    <hr>
+
+    <script id="templateAcompte" type="text/template">
+        <tr class="bg-secondary paymentsLines">
+            <td class="text-center inputHidden">
+                <button type="button" class="btn btn-danger deleteLineAcompte">
+                    <i class="fa fa-2x fa-trash-o" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" class="rankHidden" name="acompte[:id][rank]" value=":rank">
+            </td>
+            <td class="text-center libelle" colspan="3">
+                <b>Acompte N°:rank (en %)</b>
+            </td>
+            <td class="amount">
+                <input name="acompte[:id][amount]" class="form-control required amountField field" type="number"
+                       step="1"
+                       min="1" data-required="true" data-type="number">
+            </td>
+            <td class="totalPaymentsLine text-center">
+
+            </td>
+        </tr>
+    </script>
+    <script id="template" type="text/template">
+        <tr class="lineQuotation">
+            <td class="text-center">
+                <button type="button" class="btn btn-danger deleteLine">
+                    <i class="fa fa-2x fa-trash-o" aria-hidden="true"></i>
+                </button>
+            </td>
+            <td class="">
+                <textarea name="line[:id][description]" type="text" class="form-control field required"
+                          placeholder="Dénomination"
+                          rows="1"
+                          cols="50"
+                          autocomplete="off" spellcheck="true" wrap="hard"
+                          data-required="true"
+                ></textarea>
+            </td>
+            <td class="">
+                <select class="form-control unityField" name="line[:id][id_unity_type]" id="unity-:id"
+                        data-required="true">
+                    {% for unity in unities %}
+                        <option value="{{ unity.id }}">{{ unity.name }}</option>
+                    {% endfor %}
+                </select>
+
+            </td>
+            <td class=" qteLine">
+                <input name="line[:id][unity]" type="number" class="form-control required field" placeholder="Qte"
+                       min="0"
+                       data-required="true" data-type="number">
+            </td>
+            <td class=" priceLine">
+                <input name="line[:id][unity_price]" type="number" class="form-control required field"
+                       placeholder="Prix"
+                       min="0"
+                       step="0.01"
+                       data-required="true" data-type="number">
+            </td>
+            <td class=" totalPriceLine text-center">
+                0€
+            </td>
+        </tr>
+    </script>
+
+{% endblock %}
+{% block js %}
+    {{ js("Devis.js") }}
+{% endblock %}
+
+

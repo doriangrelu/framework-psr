@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "Layout/Default/head.twig" %}
+
+<body>
+{% if connected!=false %}
+    {% include "Layout/Membre/navbar.twig" %}
+{% else %}
+    {% include "Layout/Default/navbar.twig" %}
+{% endif %}
+<div class="content-wrapper">
+    {% include "Layout/Default/header.twig" %}
+    <div class="container-fluid">
+        {% include "Flash/Flash.twig" %}
+        {% block content %}
+
+        {% endblock %}
+    </div>
+</div>
+{% include "Layout/Default/footer.twig" %}
+{% include "Layout/Default/scrollTop.twig" %}
+{% include "Layout/Default/js.twig" %}
+
+<script>
+    timeago().render(document.querySelectorAll('.timeago'), 'fr')
+</script>
+{% block js %}
+
+{% endblock %}
+</body>
+</html>

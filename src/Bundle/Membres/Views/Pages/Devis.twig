@@ -1,0 +1,66 @@
+{% extends parent_template %}
+{% block content %}
+    {% if clients %}
+        <h1>Gestion des devis</h1>
+        <hr>
+        <a href="{{ path("devis.new") }}" class="btn btn-primary btn-lg">Nouveau devis</a>
+    {% else %}
+        Veuillez ajouter un client en base de données avant de générer le devis
+    {% endif %}
+    <hr>
+    <p class="text-muted">
+        Vous avez actuellement <b>{{ devis.nb }}</b> devis dans la base de données.
+    </p>
+    <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+            <tr>
+                <th>Numéro de devis</th>
+                <th>Objet du devis</th>
+                <th>Identité</th>
+                <th>Status</th>
+                <th>Montant sans les réductions</th>
+                <th>Dernières modifications</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for current in devis.content %}
+                {% set gender="Mr" %}
+                {% if current.gender=="f" %}
+                    {% set gender="Mme" %}
+                {% endif %}
+                {% set type="particulier" %}
+                {% if current.siret %}
+                    {% set type="professionnel" %}
+                {% endif %}
+                <tr>
+                    <td>
+                        <a href="{{ path("membre.devis.show", {slug:current.slug}) }}">N°{{ current.slug }}</a>
+                    </td>
+                    <td>
+                        {{ current.object    | capitalize }}
+                    </td>
+
+                    <td>
+                        <a href="{{ path("membre.client.afficher", {type:type, id:current.id}) }}">
+                            {{ gender~". "~text(current.firstName) | capitalize ~" "~ text(current.lastName) |upper }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ current.position }}
+                    </td>
+                    <td>
+                        {{ current.prix|number_format(2) }}€
+                    </td>
+
+                    <td>{{ current.modif | ago }}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+{% block js %}
+    {{ js("Devis.js") }}
+{% endblock %}

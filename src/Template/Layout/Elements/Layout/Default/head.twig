@@ -1,0 +1,35 @@
+<head>
+    <title>{{ appName }} - {{ appPage }}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {% block meta %}
+
+    {% endblock %}
+    {{ css("vendor/bootstrap/css/bootstrap.min.css", false) }}
+    {#
+
+    #}
+    {{ css("vendor/font-awesome/css/font-awesome.min.css", false) }}
+    {{ css("vendor/datatables/dataTables.bootstrap4.css", false) }}
+    {{ css("vendor/bootstrap/css/bootstrap.min.css", false) }}
+    {{ css("sb-admin.min.css") }}
+    {{ css("columns.css") }}
+    {#
+
+
+    {{ css("general.css") }}
+
+    #}
+
+    <link rel="stylesheet" href="{{ path("css.local", {file:"general.css"}) }}">
+
+    {{ cdn_css("//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css") }}
+    {{ cdn_css("https://cdnjs.cloudflare.com/ajax/libs/flatpickr/3.0.7/flatpickr.css") }}
+    {{ cdn_css("http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css") }}
+    {% block css %}
+
+    {% endblock %}
+</head>

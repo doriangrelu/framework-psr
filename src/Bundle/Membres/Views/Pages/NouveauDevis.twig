@@ -1,0 +1,166 @@
+{% extends parent_template %}
+{% block content %}
+    <h1>Nouveau devis</h1>
+    <hr>
+    <form class="creationDevis" action="{{ path("membre.devis.create") }}" method="post"
+          data-not-check="true">
+        {{ csrf_input() }}
+        <div class="row">
+            <div class="col-6">
+                <div class="card ">
+                    <div class="card-header bg-dark text-white">Information sur le devis</div>
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="form-group col-6">
+                                <label for="client">Choix du client</label>
+                                <select name="client" id="client" class="form-control">
+                                    <optgroup label="Particuliers">
+                                        {% for part in parts %}
+                                            <option value="particulier-{{ part.id }}">{{ part.firstName|capitalize }} {{ part.lastName|upper }}</option>
+                                        {% else %}
+                                            <option disabled>Aucun client particulier disponible</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="Professionnels">
+                                        {% for pro in pros %}
+                                            <option value="professionnel-{{ pro.id }}">{{ pro.firstName|capitalize }} {{ pro.lastName|upper }}</option>
+                                        {% else %}
+                                            <option disabled>Aucun client professionnel disponible</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+                            </div>
+                            {{ field("object", {required:true, label:"Objet du devis", class:"field", divClass:"col-6"}) }}
+                        </div>
+                        {{ field("join", {type:"textarea"}) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card ">
+                    <div class="card-header bg-dark text-white">Dates utiles</div>
+                    <div class="card-body">
+                        <div class="row">
+                            {{ field("validity_deadline", {required:true, class:"datepicker field", divClass:"col-6"}) }}
+                            {{ field("deadline", { class:"datepicker", divClass:"col-6"}) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+        <h2>Lignes du devis</h2>
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+
+            <th class="id-table"></th>
+            <th class="id-table">Dénomination</th>
+            <th class="id-table">Unité</th>
+            <th class="id-table">Quantité</th>
+            <th class="id-table">Prix</th>
+            <th class="id-table">Total</th>
+            </thead>
+            <tbody class="lines">
+            <tr class="invisible hidden linesDevisNotPayments">
+
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td class="text-center">
+                    <button type="button" class="btn btn-dark addLine">
+                        Nouvelle ligne
+                    </button>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-dark addPayments">
+                        Ajouter un acompte
+                    </button>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="bg-dark text-center text-white total">0€</td>
+            </tr>
+            </tfoot>
+        </table>
+
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
+
+    </form>
+
+
+
+    <script id="templateAcompte" type="text/template">
+        <tr class="bg-secondary paymentsLines">
+            <td class="text-center inputHidden">
+                <button type="button" class="btn btn-danger deleteLineAcompte">
+                    <i class="fa fa-2x fa-trash-o" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" class="rankHidden" name="acompte[:id][rank]" value=":rank">
+            </td>
+            <td class="text-center libelle" colspan="3">
+                <b>Acompte N°:rank (en %)</b>
+            </td>
+            <td class="amount">
+                <input name="acompte[:id][amount]" class="form-control required amountField field" type="number"
+                       step="1"
+                       min="1" data-required="true" data-type="number">
+            </td>
+            <td class="totalPaymentsLine text-center">
+
+            </td>
+        </tr>
+    </script>
+    <script id="template" type="text/template">
+        <tr class="lineQuotation">
+            <td class="text-center">
+                <button type="button" class="btn btn-danger deleteLine">
+                    <i class="fa fa-2x fa-trash-o" aria-hidden="true"></i>
+                </button>
+            </td>
+            <td class="">
+                <textarea name="line[:id][description]" type="text" class="form-control field required"
+                          placeholder="Dénomination"
+                          rows="1"
+                          cols="50"
+                          autocomplete="off" spellcheck="true" wrap="hard"
+                          data-required="true"
+                ></textarea>
+            </td>
+            <td class="">
+                <select class="form-control unityField" name="line[:id][id_unity_type]" id="unity-:id"
+                        data-required="true">
+                    {% for unity in unities %}
+                        <option value="{{ unity.id }}">{{ unity.name }}</option>
+                    {% endfor %}
+                </select>
+
+            </td>
+            <td class=" qteLine">
+                <input name="line[:id][unity]" type="number" class="form-control required field" placeholder="Qte"
+                       min="0"
+                       data-required="true" data-type="number">
+            </td>
+            <td class=" priceLine">
+                <input name="line[:id][unity_price]" type="number" class="form-control required field"
+                       placeholder="Prix"
+                       min="0"
+                       step="0.01"
+                       data-required="true" data-type="number">
+            </td>
+            <td class=" totalPriceLine text-center">
+                0€
+            </td>
+        </tr>
+    </script>
+
+{% endblock %}
+{% block js %}
+    {{ js("Devis.js") }}
+{% endblock %}
+
+

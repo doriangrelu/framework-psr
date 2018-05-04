@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "Layout/Default/head.twig" %}
+
+<body>
+{% include "Layout/Default/js.twig" %}
+{% include "Layout/Membre/navbar.twig" %}
+<main class="content-wrapper container-membres">
+    <div class="container-fluid">
+        {% include "Flash/Flash.twig" %}
+
+
+        {% block content %}
+
+        {% endblock %}
+    </div>
+</main>
+{% include "Layout/Default/footer.twig" %}
+{% include "Layout/Default/scrollTop.twig" %}
+
+
+<script>
+    timeago().render(document.querySelectorAll('.timeago'), 'fr')
+</script>
+{% block js %}
+
+{% endblock %}
+</body>
+</html>

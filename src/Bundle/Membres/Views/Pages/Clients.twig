@@ -1,0 +1,178 @@
+{% extends parent_template %}
+{% block content %}
+    <h1>Gestion des clients</h1>
+    <hr>
+
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#ajouter">
+        Nouveau client
+    </button>
+    <button type="button" data-toggle="modal" data-target="#vider" class="btn btn-danger btn-lg">
+        Vider la base de données
+    </button>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="vider" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Vider la base de données</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ path("membre.client.truncate") }}" method="post">
+                    {{ csrf_input() }}
+                    <div class="modal-body">
+                        <p>Cette opération est sensible puisqu'elle est définitive est irréversible.</p>
+                        <p>Veuillez donc saisir votre mot de passe pour valider cette opération.</p>
+                    </div>
+                    <div class="container">
+                        {{ field("password", {type:"password", required:true}) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger danger-action"
+                                data-message="La base de donnée client sera vidée intégralement de manière irréverssible ?">
+                            Supprimer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+            <tr>
+                <th>Identité</th>
+                <th>Mail</th>
+                <th>Téléphone</th>
+                <th>Adresse</th>
+                <th>Type</th>
+                <th>Dernière modification</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for client in clients %}
+                {% set gender="Mr" %}
+                {% if client.gender=="f" %}
+                    {% set gender="Mme" %}
+                {% endif %}
+                {% set type="particulier" %}
+                {% if client.siret %}
+                    {% set type="professionnel" %}
+                {% endif %}
+                <tr>
+                    <td>
+                        <a href="{{ path("membre.client.afficher", {type:type, id:client.id}) }}">
+                            {{ gender~". "~text(client.firstName) | capitalize ~" "~ text(client.lastName) |upper }}
+                        </a>
+                    </td>
+                    <td>{{ text(client.mail) }}</td>
+                    <td>{{ text(client.phone) }}</td>
+                    <td>{{ adress(client.adress, client.cp, client.city) }}</td>
+                    <td>{% if client.siret %}Professionnel -
+                            <i>{{ client.compagnyName }}</i>{% else %}Particulier{% endif %}</td>
+                    <td>{{ client.updatedAt | ago }}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="ajouter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="{{ path("membre.clients.ajouter") }}" method="post" id="formulaire-ajout-client">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Nouveau client</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <select name="clientType" id="clientType" class="form-control">
+                                <option value="none" selected>Selectionnez le type de client</option>
+                                <option value="pro">Professionnel</option>
+                                <option value="part">Particulier</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="body-form-client" class="container">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                        <button type="reset" class="btn btn-warning">Réinitialiser</button>
+                        <button type="submit" id="bouton-nouveau-client" class="btn btn-primary">Ajouter</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <div id="form-part" class="form-masqued">
+        <div class="form-group">
+            <label for="gender">Civilité</label>
+            <select class="form-control" name="gender" id="gender">
+                <option value="m">Homme</option>
+                <option value="f">Femme</option>
+            </select>
+        </div>
+        <div class="row">
+            {{ field("first_name", {required:true, divClass:"col-6", max:30}) }}
+            {{ field("last_name", {required:true, divClass:"col-6", max:30}) }}
+        </div>
+        <div class="row">
+            {{ field("mail", {type:"email", divClass:"col-6"}) }}
+            {{ field("phone", {divClass:"col-6", pattern:"[0-9]{10}"}) }}
+        </div>
+
+        <div class="row">
+            {{ field("adress", {max:255, divClass:"col-xs-12 col-sm-6"}) }}
+            {{ field("cp", {divClass:"col-xs-12 col-sm-3", pattern:"[0-9]{5}"}) }}
+            {{ field("city", {divClass:"col-xs-12 col-sm-3", max:255}) }}
+        </div>
+    </div>
+    <div id="form-pro" class="form-masqued">
+        <div class="form-group">
+            <label for="gender">Civilité</label>
+            <select class="form-control" name="gender" id="gender">
+                <option value="m">Homme</option>
+                <option value="f">Femme</option>
+            </select>
+        </div>
+        <div class="row">
+            {{ field("first_name", {required:true, divClass:"col-6", max:30}) }}
+            {{ field("last_name", {required:true, divClass:"col-6", max:30}) }}
+        </div>
+        <div class="row">
+            {{ field("compagny_name", {required:true, divClass:"col-6", max:30}) }}
+            {{ field("siret", {required:true, divClass:"col-6", max:30}) }}
+        </div>
+        <div class="row">
+            {{ field("mail", {type:"email", divClass:"col-6"}) }}
+            {{ field("phone", {divClass:"col-6", pattern:"[0-9]{10}"}) }}
+        </div>
+        <div class="row">
+            {{ field("adress", {max:255, divClass:"col-xs-12 col-sm-6"}) }}
+            {{ field("cp", {divClass:"col-xs-12 col-sm-3", pattern:"[0-9]{5}"}) }}
+            {{ field("city", {divClass:"col-xs-12 col-sm-3", max:255}) }}
+        </div>
+    </div>
+{% endblock %}
+    {% block js %}
+        {{ js("formulaire-client.js") }}
+    {% endblock %}

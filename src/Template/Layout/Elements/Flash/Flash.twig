@@ -1,0 +1,61 @@
+{% if flash('success') %}
+    <div class="col-xs-12 col-sm-10 offset-sm-1">
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <p class="text-center">
+                <i class="fa fa-4x fa-check-circle-o"></i>
+            </p>
+            <p class="text-center">
+                {{ flash('success') | capitalize | raw }}
+            </p>
+        </div>
+    </div>
+{% endif %}
+
+    {% if flash('error') %}
+        <div class="col-xs-12 col-sm-10 offset-sm-1">
+            <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p class="text-center">
+                    <i class="fa fa-4x fa-times-circle"></i>
+                </p>
+                <p class="text-center">
+                    {{ flash('error') | capitalize | raw }}
+                </p>
+            </div>
+        </div>
+    {% endif %}
+    {% if flash('warning') %}
+        <div class="col-xs-12 col-sm-10 offset-sm-1">
+            <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p class="text-center">
+                    <i class="fa fa-4x fa-exclamation-circle"></i>
+                </p>
+                <p class="text-center">
+                    {{ flash('warning') | capitalize | raw }}
+                </p>
+            </div>
+        </div>
+    {% endif %}
+    {% if flash('info') %}
+        <div class="col-xs-12 col-sm-10 offset-sm-1">
+            <div class="alert alert-info">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p class="text-center">
+                    <i class="fa fa-4x fa-info-circle"></i>
+                </p>
+                <p class="text-center">
+                    {{ flash('info') | capitalize | raw }}
+                </p>
+            </div>
+        </div>
+    {% endif %}

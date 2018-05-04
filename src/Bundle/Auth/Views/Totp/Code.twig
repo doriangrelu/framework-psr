@@ -1,0 +1,11 @@
+{% extends parent_template %}
+{% block content %}
+    <form method="post" action="{{ path("form.totp.send") }}">
+        {{ csrf_input() }}
+        {{ field("code", {required:true, rule:"digit", label:"Code de vérification"}) }}
+        <button type="submit" class="btn btn-success">Vérifier le code</button>
+    </form>
+    <hr>
+    <p class="text-info">Vous n'arrivez pas à vous authentifier ?</p>
+
+{% endblock %}

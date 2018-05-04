@@ -1,0 +1,26 @@
+{% extends parent_template %}
+{% block content %}
+    <form action="{{ path("inscription") }}" method="post">
+        {{ csrf_input() }}
+        <div class="row">
+            {{ field("first_name", {required:true, divClass:"col-xs-12 col-sm-6"}) }}
+            {{ field("last_name", {required:true, divClass:"col-xs-12 col-sm-6"}) }}
+        </div>
+        {{ field("birthday", {required:true, class:"datepicker"}) }}
+        {{ field("phone", {type: "telephone", required:true, pattern:"[0-9]{10}"}) }}
+        {{ field("mail", {type: "email", required:true}) }}
+        {{ field("adress", {equired:true}) }}
+        <div class="row">
+            {{ field("cp", {required:true, type:"code-postal", divClass:"col-xs-12 col-sm-6"}) }}
+            {{ field("city", {required:true, divClass:"col-xs-12 col-sm-6"}) }}
+        </div>
+        <div class="row">
+            {{ field("siret", {required:true, pattern:"[0-9]{14,15}", divClass:"col-xs-12 col-sm-6"}) }}
+            {{ field("compagny_name", {required:true, divClass:"col-xs-12 col-sm-6"}) }}
+        </div>
+
+        {{ field("password", {required:true, type:"password"}) }}
+
+        <button class="btn btn-primary">Connexion</button>
+    </form>
+{% endblock %}

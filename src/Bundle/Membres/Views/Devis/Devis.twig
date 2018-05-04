@@ -1,0 +1,220 @@
+<style rel="stylesheet">
+    * {
+        color: #717375;
+    }
+
+    #watermark {
+        position: fixed;
+        bottom: 5px;
+        right: 5px;
+        opacity: 0.5;
+        z-index: 99;
+        color: white;
+    }
+
+    hr {
+        background-color: #717375;
+        height: 1px;
+        border: none;
+    }
+
+    p {
+        margin: 0;
+        padding: 2mm 0;
+    }
+
+    table {
+        width: 100%;
+        color: #717375;
+        font-size: 12pt;
+        font-family: Helvetica;
+        line-height: 6mm;
+    }
+
+    strong {
+        color: black;
+    }
+
+    em {
+        font-size: 9pt;
+    }
+
+    td.right {
+        text-align: right;
+    }
+
+    h1 {
+        color: black;
+    }
+
+    .acompte {
+        font-size: 15px;
+    }
+
+    table.border {
+        border-collapse: collapse;
+    }
+
+    table.border td {
+        border: 1px solid #CFD1D2;
+        padding: 1mm 1mm;
+        border-collapse: collapse;
+    }
+
+    table.border th {
+        background: black;
+        color: white;
+        font-weight: normal;
+        padding: 1mm 1mm;
+        border: solid 1px white;
+        height: 15px;
+        border-collapse: collapse;
+    }
+
+    td.center {
+        text-align: center;
+    }
+</style>
+<page backtop="20mm" backleft="10mm" backright="10mm" backbottom="30mm" footer="page">
+    <table style="vertical-align: top;">
+        <tr>
+            <td style="width: 70%; text-align: justify;">
+                <strong>{{ entreprise.firstName | capitalize ~" "~entreprise.lastName|upper }}</strong><br>
+                Société: {{ entreprise.compagnyName }}<br>
+                Siret: {{ entreprise.siret }}<br>
+                {{ entreprise.adress }}, {{ entreprise.cp }}, {{ entreprise.city }}<br>
+                Adresse mail: {{ entreprise.mail }}<br>
+                Numéro de téléphone: {{ entreprise.phone }}
+            </td>
+            <td style="width: 30%;">
+                {{ client.firstName | capitalize }} {{ client.lastName| upper }}<br>
+                {{ client.adress }}<br>{{ client.cp }}, {{ client.city }}<br>
+                {% if client.siret!="" %}
+                    Société: {{ client.compagnyName }}<br>
+                    Siret: {{ client.siret }}
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <table style="vertical-align: bottom; margin-top: 20mm;">
+        <tr>
+            <td style="width: 100%" colspan="2"><h1>Devis n°{{ devis.slug }}</h1></td>
+        </tr>
+        <tr>
+            <td style="width: 70%">Objet: <strong>{{ devis.object | capitalize }}</strong></td>
+            <td style="width: 30%" class="right">Emis le {{ devis.updatedAt | date("d/m/Y") }}</td>
+        </tr>
+    </table>
+
+    <table class="border">
+        <thead>
+        <tr>
+            <th style="width: 50%;">Description</th>
+            <th class="center" style="width: 15%;">Quantité</th>
+            <th class="center" style="width: 10%;">Unité</th>
+            <th class="center" style="width: 15%;">Prix unitaire</th>
+            <th class="center" style="width: 10%;">Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--foreach lignes-->
+        {% for detail in details %}
+            <tr>
+                <td style="width:50%">{{ detail.description | capitalize }}</td>
+                {% if detail.idUnityType==4 %}
+                    <td colspan="2" style="color:red;text-align: center;"> Remise</td>
+                {% else %}
+                    <td style="width: 15%;text-align: center">{{ detail.unity }}</td>
+                    <td style="width: 10%;text-align: center">{{ unities[detail.idUnityType-1].slug | capitalize }}</td>
+                {% endif %}
+
+                {% if detail.idUnityType==4 %}
+                    <td style="width: 15%;text-align: right;color:red;">-{{ detail.unityPrice }}%</td>
+                    <td class="center" style="width: 10%;text-align: right;color:red;">-{{ detail.subTotal }}&euro;</td>
+                {% else %}
+                    <td style="width: 15%;text-align: right">{{ detail.unityPrice }}&euro;</td>
+                    <td class="center" style="width: 10%;text-align: right">{{ detail.subTotal }}&euro;</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        {% set count = 0 %}
+        {% for nc in payments %}
+            {% set count = count + 1 %}
+        {% endfor %}
+        {% if count>0 %}
+            <tr>
+                <td colspan="5" style="text-align: center;color:black">Acomptes</td>
+            </tr>
+        {% endif %}
+        {% for payment in payments %}
+            <tr>
+
+                <td>Acompte N°{{ payment.rank }}</td>
+                <td colspan="4">Montant: {{ payment.amount }}% ({{ payment.subTotal }}€)</td>
+            </tr>
+        {% endfor %}
+
+        <!--endforeach-->
+        <tr>
+            <td>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <strong>Date de début de la prestation:</strong> &nbsp;&nbsp;&nbsp;<br>
+                <strong>Date de fin de la prestation:</strong>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                <strong>Fin de validité de l'offre:</strong>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="3" style="border-left: none; border-bottom: none">
+                <em>TVA non applicable art 293b du cgi</em>
+            </td>
+            <td style="background: black; color:white;padding: 1mm">Total:</td>
+            <td style="text-align: right;"><strong><!--Prix total -->{{ total }}&euro;</strong></td>
+        </tr>
+        </tbody>
+    </table>
+    {% if devis.join != "" %}
+        <p style="color:black !important; text-align: justify;font-style: italic;">
+            <strong>Clauses: </strong>{{ devis.join | capitalize }}
+        </p>
+    {% endif %}
+    <hr>
+    <table>
+        <tr>
+            <td style="width: 30%; text-align: left">
+                <strong>Date:</strong>
+            </td>
+            <td style="width: 70%; text-align: right">
+                <strong>Signature, précédée de la mention "bon pour accord"</strong>
+            </td>
+        </tr>
+    </table>
+</page>
+
+<!--
+<page backtop="20mm" backleft="10mm" backright="10mm" backbottom="30mm" footer="page">
+
+</page>
+-->

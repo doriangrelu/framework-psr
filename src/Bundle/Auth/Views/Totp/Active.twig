@@ -1,0 +1,29 @@
+{% extends parent_template %}
+{% block content %}
+    <h1>QR Code</h1>
+    <hr>
+    <p class="text-justify text-muted">
+        Veuillez scanner le présent QR Code pour pouvoir générer le code secre utilisé par la suite
+    </p>
+    <div class="card">
+        <div class="card-body">
+            <p class="text-center">
+                <img src="{{ code }}" alt=""/>
+            </p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Saisir le code secret</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{{ path("otp.active.send") }}">
+                {{ csrf_input() }}
+                {{ field("code", {required:true, rule:"digit", label:"Code de vérification"}) }}
+                <button type="submit" class="btn btn-success">Vérifier le code</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
