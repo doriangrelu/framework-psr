@@ -158,9 +158,15 @@ class App implements DelegateInterface
 
         $model = $this->getContainer()->get(Dorian::class);
 
-        $model->prenom="Dorian";
+        $model->prenom = "audrey";
 
-        dd($model->select()->fetchAll()->get(0)->select()->fetchAll()->prenom="dorian");
+        dd($model->save());
+
+        //dd($model->update(["prenom"=>"audrey Mimi"])->where("id=1")->save());
+
+        dd($model->save());
+
+        //dd($model->select()->fetchAll()->get(0)->select()->fetchAll()->prenom="dorian");
 
         die();
 

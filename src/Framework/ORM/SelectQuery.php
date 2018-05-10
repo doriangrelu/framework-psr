@@ -9,6 +9,7 @@
 namespace App\Framework\ORM;
 
 
+use Framework\Database\Hydrator;
 use Framework\Database\NoRecordException;
 use Framework\Database\PaginatedQuery;
 use Framework\Database\QueryResult;

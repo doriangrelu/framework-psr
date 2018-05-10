@@ -24,4 +24,6 @@ class Entity
         $this->fields[$name] = $value;
     }
 
+
+
 }

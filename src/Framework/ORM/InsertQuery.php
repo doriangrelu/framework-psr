@@ -14,10 +14,6 @@ use Rhumsaa\Uuid\Exception\UnsupportedOperationException;
 class InsertQuery extends Query
 {
 
-    /**
-     * @var \PDO
-     */
-    private $pdo;
 
     /**
      * @var array
@@ -41,17 +37,15 @@ class InsertQuery extends Query
     {
         parent::__construct($pdo);
         $this->table = $table;
-        $this->pdo = $pdo;
         $this->values = $values;
     }
 
     public function save()
     {
-        if($this->pdo->query($this->__toString())->execute($this->valuesInsert)){
-            return false;
-        } else {
+        if($this->pdo->prepare($this->__toString())->execute($this->valuesInsert)){
             return $this->pdo->lastInsertId();
         }
+        return false;
     }
 
     public function __toString()
@@ -59,11 +53,11 @@ class InsertQuery extends Query
         $escape = [];
         $fields = [];
         foreach ($this->values as $field => $value) {
-            $this->valuesInsert[] = $value;
+            $this->valuesInsert[$field] = $value;
             $fields[] = "`$field`";
             $escape[] = ":$field";
         }
-        return "INSERT INTO `{$this->table}` (".implode(',', $fields).") VALUES(".implode(',', $field).")";
+        return "INSERT INTO `{$this->table}` (".implode(',', $fields).") VALUES (".implode(',', $escape).")";
     }
 
 

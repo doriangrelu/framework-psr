@@ -9,12 +9,12 @@
 namespace App\Framework\ORM;
 
 
+use Pekkis\Queue\Queue;
+
 class Where
 {
 
-    /**
-     * @var Pekkis\Queue\Queue;
-     */
+
     private $queue = [];
 
 
