@@ -12,13 +12,14 @@ namespace Framework;
 use App\Framework\Exception\ORMException;
 use App\Framework\Exception\UnsupportedOperationException;
 use App\Framework\Facades\Container;
+use App\Framework\ORM\DeleteQuery;
 use App\Framework\ORM\Entity;
 use App\Framework\ORM\InsertQuery;
 use App\Framework\ORM\SelectQuery;
 use App\Framework\ORM\UpdateQuery;
 use Framework\Database\NoRecordException;
 
-class ModelTest
+class Model
 {
 
     private const MOD = 1;
@@ -75,6 +76,9 @@ class ModelTest
         if ($this->fieldIsPrimary($name) && isset($this->fields[$name]) && $this->fields[$name] !== null) {
             $this->update([$name => $value])->where("`$name`=" . addslashes($this->fields[$name]))->save();
         }
+        if(!$value instanceof \DateTime && ($name === "createdAt" or $name === "updatedAt")){
+            $value = new \DateTime($value);
+        }
         $this->fields[$name] = $value;
     }
 
@@ -94,8 +98,23 @@ class ModelTest
 
     public static function create(string $table): self
     {
-        return new ModelTest(Container::get(\PDO::class), $table);
+        return new Model(Container::get(\PDO::class), $table);
     }
+
+    /**
+     * Get new Entity
+     * @return Model
+     */
+    public function getEntity()
+    {
+        if (get_class($this) === get_class($this->entity)) {
+            $entityPointer = get_class($this->entity);
+            return new $entityPointer(Container::get(\PDO::class), $this->table);
+        }
+        return self::create($this->table);
+
+    }
+
 
 
     /**
@@ -105,27 +124,31 @@ class ModelTest
      */
     public function select(string...$fields): SelectQuery
     {
-        $this->lastAction = self::LOD;
         if (count($fields) === 0) {
             $fields = ["{$this->table}.*"];
         }
-        return (new SelectQuery($this->pdo, $this->table, $fields, $this->entity));
+        return (new SelectQuery($this->pdo, $this->table, $fields, $this->getEntity()));
+    }
+
+    public function delete(): DeleteQuery
+    {
+        return (new DeleteQuery($this->pdo, $this->table));
     }
 
     public function insert(array $values): InsertQuery
     {
-        $this->lastAction = self::MOD;
+        $values = $this->executeGuard($values);
         return (new InsertQuery($this->pdo, $this->table, $values));
     }
 
     public function update(array $values): UpdateQuery
     {
-        $this->lastAction = self::MOD;
+        $values = $this->executeGuard($values);
         return (new UpdateQuery($this->pdo, $this->table, $values));
     }
 
     /**
-     * @throws UnsupportedOperationException
+     * @return bool|int|string
      * @throws ORMException
      */
     public function save()
@@ -140,9 +163,9 @@ class ModelTest
                     ->select()
                     ->where(implode(" AND ", $primaries))
                     ->fetchOrFail();
-                return $this->update($this->fields)->where(implode(" AND ", $primaries))->save();
+                return (new UpdateQuery($this->pdo, $this->table, $this->fields))->where(implode(" AND ", $primaries))->save();
             } catch (NoRecordException $e) {
-                return $this->insert($this->fields)->save();
+                return (new InsertQuery($this->pdo, $this->table, $this->fields))->save();
             }
         }
         throw new ORMException("Missing fields");
@@ -182,4 +205,13 @@ class ModelTest
         }
         return $notGuardedFields;
     }
+
+    public function setCreatedAt(string $date){
+        $this->__set("createdAt", new \DateTime($date));
+    }
+
+    public function setUpdatedAt(string $date){
+        $this->__set("setUpdatedAt", new \DateTime($date));
+    }
+
 }

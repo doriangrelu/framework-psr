@@ -31,8 +31,6 @@ class SelectQuery extends Query
 
     private $joins;
 
-    private $params = [];
-
     /**
      * SelectQuery constructor.
      * @param \PDO $pdo

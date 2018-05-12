@@ -16,6 +16,9 @@ abstract class Query
      */
     protected $pdo;
 
+
+    protected $params=[];
+
     /**
      * Query constructor.
      * @param \PDO $pdo
@@ -25,6 +28,12 @@ abstract class Query
         $this->pdo = $pdo;
     }
 
+
+    public function withParams(array $params):self
+    {
+        $this->params=array_merge($this->params, $params);
+        return $this;
+    }
 
 
 }

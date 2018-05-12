@@ -22,9 +22,6 @@ class Container
      */
     public static function __callStatic($name, $arguments)
     {
-        if(count($arguments)!==1){
-            throw new ContainerFacadeException();
-        }
-        return App::$containerForFacade->$name($arguments[0]);
+        return call_user_func_array([App::$containerForFacade, $name], $arguments);
     }
 }

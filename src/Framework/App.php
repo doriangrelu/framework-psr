@@ -147,6 +147,15 @@ class App implements DelegateInterface
         }
     }
 
+    /**
+     * Container Interface
+     * @return ContainerInterface
+     */
+    public static function container():ContainerInterface
+    {
+        return self::$containerForFacade;
+    }
+
 
     public function run(ServerRequestInterface $request): ResponseInterface
     {
@@ -157,9 +166,12 @@ class App implements DelegateInterface
         $request = $request->withAttribute("container", $this->getContainer());
 
         $model = $this->getContainer()->get(Dorian::class);
-
         $model->prenom = "audrey";
+        $model->delete()->where("id=1")->save();
+        dd($model->select()->fetchAll()->get(0));
 
+
+        dd($model->getEntity());
         dd($model->save());
 
         //dd($model->update(["prenom"=>"audrey Mimi"])->where("id=1")->save());

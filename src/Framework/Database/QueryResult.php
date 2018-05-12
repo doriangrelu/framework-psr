@@ -1,6 +1,7 @@
 <?php
 
 namespace Framework\Database;
+use Framework\Model;
 
 /**
  * Représente les résultats d'une requête
@@ -61,6 +62,23 @@ class QueryResult implements \ArrayAccess, \Iterator, \Countable
             return $this->hydratedRecords[$index];
         }
         return $this->entity;
+    }
+
+    /**
+     * @return int
+     * @throws \App\Framework\Exception\ORMException
+     */
+    public function saves()
+    {
+        $called = 0;
+        foreach ($this->records as $record){
+            $instanceOfRecord = Hydrator::hydrate($record, $this->entity);
+            if($instanceOfRecord instanceof Model){
+                $instanceOfRecord->save();
+                $called++;
+            }
+        }
+        return $called;
     }
 
     /**

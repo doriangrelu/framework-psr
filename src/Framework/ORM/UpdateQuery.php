@@ -9,7 +9,7 @@
 namespace App\Framework\ORM;
 
 
-class UpdateQuery extends Query
+class UpdateQuery extends QueryWithWhere
 {
 
     private $table;
@@ -62,12 +62,8 @@ class UpdateQuery extends Query
             $fields[] = "`$field`";
             $binded[] = "`$field`=:$field";
         }
-        $this->params = array_merge($this->params, $this->fields);
-        $where = "";
-
-        if (count($this->where)) {
-            $where = ' WHERE ' . implode(" AND ", $this->where);
-        }
-        return "UPDATE `$this->table` SET " . implode(', ', $binded) . $where;
+        $this->withParams($this->fields);
+        //$this->params = array_merge($this->params, $this->fields);
+        return "UPDATE `$this->table` SET " . implode(', ', $binded) . $this->getWhere();
     }
 }

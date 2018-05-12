@@ -9,9 +9,9 @@
 namespace App\Framework;
 
 
-use Framework\ModelTest;
+use Framework\Model;
 
-class Dorian extends ModelTest
+class Dorian extends Model
 {
     protected $table = "dorian";
 
