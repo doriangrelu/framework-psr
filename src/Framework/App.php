@@ -7,6 +7,7 @@ use App\Bundle\Bundle;
 use App\Bundle\Routes;
 
 use App\Framework\Dorian;
+use App\Models\Test;
 use DI\ContainerBuilder;
 
 use Doctrine\Common\Cache\FilesystemCache;
@@ -164,26 +165,7 @@ class App implements DelegateInterface
         require "src/routes/web.php";
         $this->bindRouteMiddleware($request);
         $request = $request->withAttribute("container", $this->getContainer());
-
-        $model = $this->getContainer()->get(Dorian::class);
-        $model->prenom = "audrey";
-        $model->delete()->where("id=1")->save();
-        dd($model->select()->fetchAll()->get(0));
-
-
-        dd($model->getEntity());
-        dd($model->save());
-
-        //dd($model->update(["prenom"=>"audrey Mimi"])->where("id=1")->save());
-
-        dd($model->save());
-
-        //dd($model->select()->fetchAll()->get(0)->select()->fetchAll()->prenom="dorian");
-
-        die();
-
         return $this->process($request);
-
     }
 
 

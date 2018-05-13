@@ -32,7 +32,12 @@ class Renderer
     /**
      * @var array
      */
-    private $activeTable;
+    private $activeTable = [];
+
+    /**
+     * @var string
+     */
+    private $layout;
 
     /**
      * Renderer constructor.
@@ -40,13 +45,10 @@ class Renderer
      * @param ContainerInterface $container
      * @param null|string $layout
      */
-    public function __construct(string $controller, ContainerInterface $container, ?string $layout = null)
+    public function __construct(ContainerInterface $container, ?string $layout = null)
     {
-
-        $this->factory = new RendererFactory($controller);
         $this->container = $container;
-        $this->activeTable = [];
-
+        $this->layout = $layout;
     }
 
 
@@ -55,11 +57,9 @@ class Renderer
      */
     private function getLoader(): \Twig_Loader_Filesystem
     {
-        $rendererEnvironement = $this->factory->getRendererEnvironement();
         return new \Twig_Loader_Filesystem([
-            $rendererEnvironement->getElementsDirname(),
-            $rendererEnvironement->getViewPath(),
-            $rendererEnvironement->getLayoutDirname()
+            TEMPLATE,
+            TEMPLATE . "Layout"
         ]);
     }
 
@@ -74,7 +74,7 @@ class Renderer
     private function getTwig(): \Twig_Environment
     {
         $twig = new \Twig_Environment($this->getLoader(), [
-            "cache" => false
+            "cache" => Mode::is_prod()
         ]);
         if ($this->container->has('twig.extensions')) {
             foreach ($this->container->get('twig.extensions') as $extension) {
@@ -92,7 +92,7 @@ class Renderer
      */
     public function setLayout(string $name)
     {
-        $this->factory->setLayout($name);
+        $this->layout = $name;
     }
 
 
@@ -118,11 +118,11 @@ class Renderer
         $rendererEnvironement = $this->factory->getRendererEnvironement();
 
         $this->make([
-            "parent_template" => $this->factory->getRendererEnvironement()->getLayoutFileName(),
+            "parent_template" => $this->layout,
             "active" => $this->activeTable
         ]);
-        $viewName = ucfirst($viewName);
-        $viewFile = $rendererEnvironement->getViewPath() . DS . $viewName . '.twig';
+        $viewName = str_replace(".", DS, ucfirst($viewName));
+        $viewFile = TEMPLATE . $viewName . '.twig';
         if (!is_file($viewFile)) {
             throw new \Exception("La vue <$viewName> n'existe pas dans le dossier <{$rendererEnvironement->getViewPath()}>");
         }

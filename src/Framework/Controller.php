@@ -9,6 +9,7 @@
 namespace App\Framework;
 
 
+use Framework\Renderer;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -25,6 +26,11 @@ class Controller
     protected $container;
 
     /**
+     * @var Renderer
+     */
+    protected $renderer;
+
+    /**
      * Controller constructor.
      * @param ServerRequestInterface $request
      * @param ContainerInterface $container
@@ -34,6 +40,8 @@ class Controller
         $this->request = $request;
         $this->container = $container;
     }
+
+
 
     /**
      * Policy Controller

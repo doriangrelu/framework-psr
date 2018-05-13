@@ -46,7 +46,7 @@ class Table
      */
     public function __get($name)
     {
-        if(isset($this->properties[$name])){
+        if (isset($this->properties[$name])) {
             return $this->properties[$name];
         }
         return null;
@@ -177,8 +177,9 @@ class Table
      * @param array $fields
      * @return array
      */
-    private function escapeFieldsName(array $fields):array{
-        return array_map(function($field){
+    private function escapeFieldsName(array $fields): array
+    {
+        return array_map(function ($field) {
             return "`$field`";
         }, $fields);
     }
@@ -196,11 +197,13 @@ class Table
         $values = join(', ', array_map(function ($field) {
             return ':' . $field;
         }, $fields));
-        $fields=$this->escapeFieldsName($fields);
+        $fields = $this->escapeFieldsName($fields);
         $fields = join(', ', $fields);
         $query = $this->pdo->prepare("INSERT INTO `{$this->table}` ($fields) VALUES ($values)");
         return $query->execute($params);
     }
+
+
 
     /**
      * Retourne le dernièr ID inséré
@@ -226,16 +229,16 @@ class Table
 
     public function deleteBy(?array $cond = [])
     {
-       $this->emit("delete");
-        $condition="";
-        $conds=[];
-        $values=[];
-        foreach ($cond as $key=>$value){
-            $conds[]="`$key`=:$key";
+        $this->emit("delete");
+        $condition = "";
+        $conds = [];
+        $values = [];
+        foreach ($cond as $key => $value) {
+            $conds[] = "`$key`=:$key";
         }
-        if(count($conds)>0){
-            $condition="WHERE ";
-            $condition.=join(" AND ", $conds);
+        if (count($conds) > 0) {
+            $condition = "WHERE ";
+            $condition .= join(" AND ", $conds);
         }
         $query = $this->pdo->prepare("DELETE FROM `{$this->table}` $condition");
         return $query->execute($cond);
@@ -252,7 +255,8 @@ class Table
     /**
      * @param string $eventType
      */
-    private function emit(string $eventType):void{
+    private function emit(string $eventType): void
+    {
         $this->emitter->emit("on.{$this->table}.$eventType");
     }
 

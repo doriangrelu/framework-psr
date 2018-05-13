@@ -29,26 +29,7 @@ require 'config/constants.php';
 
 Mode::init(Mode::DEVELOPPEMENT);
 
-$app = (new \Framework\App())
-    ->addModule(ErrorsBundle::class)
-    ->addModule(AuthBundle::class)
-    ->addModule(PagesBundle::class)
-    ->addModule(ParametresBundle::class)
-    ->addModule(MembresBundle::class)
-    ->addModule(RessourcesBundle::class)
-    ->addModule(FacturesBundle::class)
-    ->pipe(Whoops::class)
-    ->pipe(TrailingSlashMiddleware::class)
-    ->pipe(MethodMiddleware::class);
-if (Mode::is_prod()) {
-    $app->pipe(CsrfMiddleware::class);
-}
-//$app->pipe(CsrfMiddleware::class);
-$app->pipe(RouterMiddleware::class)
-    ->pipe(LoggedInMiddleware::class)
-    ->pipe(AttachMiddleware::class)
-    ->pipe(DispatcherMiddleware::class)
-    ->pipe(NotFoundMiddleware::class);
+$app = (new \Framework\App());
 
 
 if (php_sapi_name() !== "cli") {

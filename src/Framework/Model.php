@@ -8,9 +8,7 @@
 
 namespace Framework;
 
-
 use App\Framework\Exception\ORMException;
-use App\Framework\Exception\UnsupportedOperationException;
 use App\Framework\Facades\Container;
 use App\Framework\ORM\DeleteQuery;
 use App\Framework\ORM\Entity;
@@ -18,13 +16,10 @@ use App\Framework\ORM\InsertQuery;
 use App\Framework\ORM\SelectQuery;
 use App\Framework\ORM\UpdateQuery;
 use Framework\Database\NoRecordException;
+use Framework\Database\QueryResult;
 
 class Model
 {
-
-    private const MOD = 1;
-    private const LOD = 2;
-
     /**
      * @var \PDO
      */
@@ -58,13 +53,12 @@ class Model
      */
     protected $guarded = [];
 
+    /**
+     * Security insert from array
+     * @var bool
+     */
     protected $fillableSecurity = true;
 
-    /**
-     * Dernière action effectuée par le framework
-     * @var String|null
-     */
-    private $lastAction = null;
 
     public function __get($name)
     {
@@ -76,7 +70,7 @@ class Model
         if ($this->fieldIsPrimary($name) && isset($this->fields[$name]) && $this->fields[$name] !== null) {
             $this->update([$name => $value])->where("`$name`=" . addslashes($this->fields[$name]))->save();
         }
-        if(!$value instanceof \DateTime && ($name === "createdAt" or $name === "updatedAt")){
+        if (!$value instanceof \DateTime && ($name === "createdAt" or $name === "updatedAt")) {
             $value = new \DateTime($value);
         }
         $this->fields[$name] = $value;
@@ -94,10 +88,23 @@ class Model
         if (!is_null($table)) {
             $this->table = $table;
         }
+        if (empty($this->table)) {
+            $className = explode("\\", get_class($this));
+            $this->table = strtolower(end($className));
+        }
+
     }
 
-    public static function create(string $table): self
+    /**
+     * @param string $table
+     * @return Model
+     */
+    public static function create(string $table)
     {
+        $className = "App\Models\{$table}";
+        if (class_exists($className)) {
+            return Container::get($className);
+        }
         return new Model(Container::get(\PDO::class), $table);
     }
 
@@ -115,6 +122,39 @@ class Model
 
     }
 
+    /**
+     * @return mixed|null|string
+     */
+    public function findFirst()
+    {
+        $query = $this->select()->fetchAll();
+        if ($query->count() > 0) {
+            return $query->get(0);
+        }
+        return null;
+    }
+
+    /**
+     * @param array $conditions
+     * @return QueryResult
+     */
+    public function findBy(array $conditions): QueryResult
+    {
+        $fields = [];
+
+        foreach (array_keys($conditions) as $field) {
+            $fields[] = "$field=:$field";
+        }
+        return $this->select()->where(implode(" AND ", $fields))->params($conditions)->fetchAll();
+    }
+
+    /**
+     * @return string
+     */
+    public function lastInsertedId(): string
+    {
+        return $this->pdo->lastInsertId();
+    }
 
 
     /**
@@ -130,24 +170,44 @@ class Model
         return (new SelectQuery($this->pdo, $this->table, $fields, $this->getEntity()));
     }
 
+    /**
+     * @return DeleteQuery
+     */
     public function delete(): DeleteQuery
     {
         return (new DeleteQuery($this->pdo, $this->table));
     }
 
+    /**
+     * @param array $values
+     * @return InsertQuery
+     * @throws ORMException
+     */
     public function insert(array $values): InsertQuery
     {
         $values = $this->executeGuard($values);
+        if (count($values) === 0) {
+            throw new ORMException("Missing fields on insert");
+        }
         return (new InsertQuery($this->pdo, $this->table, $values));
     }
 
+    /**
+     * @param array $values
+     * @return UpdateQuery
+     * @throws ORMException
+     */
     public function update(array $values): UpdateQuery
     {
         $values = $this->executeGuard($values);
+        if (count($values) === 0) {
+            throw new ORMException("Missing fields on insert");
+        }
         return (new UpdateQuery($this->pdo, $this->table, $values));
     }
 
     /**
+     * Save the instance Datas
      * @return bool|int|string
      * @throws ORMException
      */
@@ -171,6 +231,9 @@ class Model
         throw new ORMException("Missing fields");
     }
 
+    /**
+     * @return array
+     */
     private function getPrimariesKeysWithValuesAssignement(): array
     {
         $primaries = [];
@@ -206,11 +269,21 @@ class Model
         return $notGuardedFields;
     }
 
-    public function setCreatedAt(string $date){
+    /**
+     * For Hydrator
+     * @param string $date
+     */
+    public function setCreatedAt(string $date)
+    {
         $this->__set("createdAt", new \DateTime($date));
     }
 
-    public function setUpdatedAt(string $date){
+    /**
+     * For Hydrator
+     * @param string $date
+     */
+    public function setUpdatedAt(string $date)
+    {
         $this->__set("setUpdatedAt", new \DateTime($date));
     }
 
