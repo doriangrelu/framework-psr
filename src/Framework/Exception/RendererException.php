@@ -2,14 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: Dorian
- * Date: 10/05/2018
- * Time: 19:41
+ * Date: 17/05/2018
+ * Time: 18:06
  */
 
 namespace App\Framework\Exception;
 
 
-class ORMException extends \Exception
+class RendererException extends \Exception
 {
 
 }

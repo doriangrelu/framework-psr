@@ -1,5 +1,6 @@
 <?php
 
+use App\Event\ErrorHandler;
 use App\Framework\Middleware\AttachMiddleware;
 use Framework\Cookie\CookieInterface;
 use Framework\Cookie\PHPCookie;
@@ -10,6 +11,7 @@ use Framework\Middleware\MethodMiddleware;
 use Framework\Middleware\NotFoundMiddleware;
 use Framework\Middleware\RouterMiddleware;
 use Framework\Middleware\TrailingSlashMiddleware;
+use Framework\Mode;
 use Framework\Router;
 use Framework\Router\RouterInterface;
 use Framework\Session\ErrorsManager;
@@ -28,11 +30,28 @@ use Framework\Twig\TimeExtension;
 use Middlewares\Whoops;
 
 return [
+
+    "app" => [
+        "name"=>"Application Name Here",
+        "mode" => Mode::DEVELOPPEMENT,
+        "auth"=>[
+            "userTable"=>"",
+            "rolesTable"=>"",
+            "tokenSecurity"=>true
+        ]
+    ],
+
+    /**
+     * Auto add subscriber Handler
+     */
+    "subscribers"=>[
+        ErrorHandler::class
+    ],
+
     /**
      * Middleware Définition for Application
      */
     "middlewares" => [
-        Whoops::class,
         TrailingSlashMiddleware::class,
         MethodMiddleware::class,
         CsrfMiddleware::class,
@@ -40,7 +59,8 @@ return [
         LoggedInMiddleware::class,
         AttachMiddleware::class,
         DispatcherMiddleware::class,
-        NotFoundMiddleware::class
+        NotFoundMiddleware::class,
+        Whoops::class
     ],
 
     /**

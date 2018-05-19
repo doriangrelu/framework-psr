@@ -1,23 +1,11 @@
 <?php
 
-use App\Bundle\Auth\AuthBundle;
-use App\Bundle\Errors\ErrorsBundle;
-use App\Bundle\Factures\FacturesBundle;
-use App\Bundle\Membres\MembresBundle;
-use App\Bundle\Pages\PagesBundle;
-use App\Bundle\Parametres\ParametresBundle;
-use App\Bundle\Ressources\RessourcesBundle;
-use App\Framework\Middleware\AttachMiddleware;
-use Framework\Middleware\CsrfMiddleware;
-use Framework\Middleware\DispatcherMiddleware;
-use Framework\Middleware\LoggedInMiddleware;
-use Framework\Middleware\MethodMiddleware;
-use Framework\Middleware\RouterMiddleware;
-use Framework\Middleware\TrailingSlashMiddleware;
-use Framework\Middleware\NotFoundMiddleware;
+use App\Event\ErrorHandler;
+use App\Framework\Event\Emitter;
+use Framework\App;
 use Framework\Mode;
+use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
-use Middlewares\Whoops;
 
 chdir(dirname(__DIR__));
 
@@ -27,16 +15,24 @@ require 'vendor/autoload.php';
 require 'config/functions.php';
 require 'config/constants.php';
 
-Mode::init(Mode::DEVELOPPEMENT);
-
-$app = (new \Framework\App());
-
 
 if (php_sapi_name() !== "cli") {
-    try {
+    $app = new App();
+    if (App::container()->get("mode") === Mode::DEVELOPPEMENT) {
+        $whoops = new \Whoops\Run;
+        $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+        $whoops->register();
+
         $response = $app->run(ServerRequest::fromGlobals());
         \Http\Response\send($response);
-    } catch (Exception $e) {
-        dump($e);
+    } else {
+        try {
+            $response = $app->run(ServerRequest::fromGlobals());
+            \Http\Response\send($response);
+        } catch (Exception $e) {
+            \Http\Response\send(new Response(500, [], "Internal Error please contact administrator"));
+        }
     }
+} else {
+    $app = new App();
 }

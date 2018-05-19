@@ -9,6 +9,7 @@
 namespace Framework;
 
 
+use App\Framework\Exception\RendererException;
 use Framework\Renderer\RendererFactory;
 use Psr\Container\ContainerInterface;
 
@@ -37,18 +38,15 @@ class Renderer
     /**
      * @var string
      */
-    private $layout;
+    private $layout ="default";
 
     /**
      * Renderer constructor.
-     * @param string $controller
      * @param ContainerInterface $container
-     * @param null|string $layout
      */
-    public function __construct(ContainerInterface $container, ?string $layout = null)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->layout = $layout;
     }
 
 
@@ -111,20 +109,21 @@ class Renderer
     /**
      * @param string $viewName
      * @return string
-     * @throws \Exception
+     * @throws RendererException
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public function render(string $viewName): string
     {
-        $rendererEnvironement = $this->factory->getRendererEnvironement();
-
         $this->make([
             "parent_template" => $this->layout,
             "active" => $this->activeTable
         ]);
-        $viewName = str_replace(".", DS, ucfirst($viewName));
+        $viewName = str_replace(".", DS, $viewName);
         $viewFile = TEMPLATE . $viewName . '.twig';
         if (!is_file($viewFile)) {
-            throw new \Exception("La vue <$viewName> n'existe pas dans le dossier <{$rendererEnvironement->getViewPath()}>");
+            throw new RendererException("La vue <$viewName> n'existe pas");
         }
         $template = $this->getTwig()->load("$viewName.twig");
         return $template->render($this->args);

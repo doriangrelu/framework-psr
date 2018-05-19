@@ -120,4 +120,13 @@ class PHPSession implements SessionInterface, \ArrayAccess
     {
         $this->delete($offset);
     }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function exist(string $key): bool
+    {
+        return $this->offsetExists($key);
+    }
 }

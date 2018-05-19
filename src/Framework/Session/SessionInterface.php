@@ -31,4 +31,10 @@ interface SessionInterface
      * @param string $key
      */
     public function delete(string $key): void;
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function exist(string $key):bool;
 }

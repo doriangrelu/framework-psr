@@ -42,7 +42,7 @@ class Model
     /**
      * @var array
      */
-    protected $id = ["id"];
+    protected $ids = ["id"];
 
     /**
      * @var array
@@ -238,7 +238,7 @@ class Model
     {
         $primaries = [];
         foreach ($this->fields as $field => $value) {
-            if (in_array($field, $this->id)) {
+            if (in_array($field, $this->ids)) {
                 $primaries[] = "`$field`=$value";
             }
         }
@@ -251,7 +251,7 @@ class Model
      */
     private function fieldIsPrimary(string $field): bool
     {
-        return in_array($field, $this->id);
+        return in_array($field, $this->ids);
     }
 
     /**

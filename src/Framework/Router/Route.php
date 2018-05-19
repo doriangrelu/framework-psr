@@ -9,6 +9,7 @@
 namespace Framework\Router;
 
 
+use App\Framework\Auth\Role;
 use Framework\Exception\CallableRouterException;
 
 class Route
@@ -43,10 +44,12 @@ class Route
      */
     private $middlewares = [];
 
+    private $roles = [];
+
     /**
      * @var string[]
      */
-    private $scope=[];
+    private $scope = [];
 
     /**
      * Route constructor.
@@ -193,13 +196,31 @@ class Route
     }
 
     /**
+     * @param Role $role
+     * @return Route
+     */
+    public function require(Role $role): self
+    {
+        $this->roles[] = $role;
+        return $this;
+    }
+
+    /**
+     * @return Role[]|[]
+     */
+    public function getRequiredRoles():array {
+        return $this->roles;
+    }
+
+    /**
      * @param $param
      * @param $regex
      * @param bool $nullable
      * @return Route
      * @deprecated use Where method
      */
-    public function width($param, $regex, $nullable = false): self{
+    public function width($param, $regex, $nullable = false): self
+    {
         return $this->where($param, $regex, $nullable);
     }
 
@@ -211,14 +232,14 @@ class Route
      */
     public function bind($middleware): self
     {
-        if(!in_array($middleware, $this->middlewares)){
+        if (!in_array($middleware, $this->middlewares)) {
             $this->middlewares[] = $middleware;
         }
         return $this;
     }
 
 
-    public function getMiddlewares():array
+    public function getMiddlewares(): array
     {
         return $this->middlewares;
     }

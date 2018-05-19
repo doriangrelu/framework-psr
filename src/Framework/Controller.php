@@ -10,25 +10,13 @@ namespace App\Framework;
 
 
 use Framework\Renderer;
+use Framework\Utility\ControllerUtility;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Controller
 {
-
-    /**
-     * @var ServerRequestInterface
-     */
-    protected $request;
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * @var Renderer
-     */
-    protected $renderer;
+    use ControllerUtility;
 
     /**
      * Controller constructor.
@@ -37,10 +25,8 @@ class Controller
      */
     public function __construct(ServerRequestInterface $request, ContainerInterface $container)
     {
-        $this->request = $request;
-        $this->container = $container;
+        $this->initialize($request, $container);
     }
-
 
 
     /**

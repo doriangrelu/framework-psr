@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class QuotationStatusTable extends AbstractMigration
+class CreateUsersTable extends AbstractMigration
 {
     /**
      * Change Method.
@@ -27,17 +27,13 @@ class QuotationStatusTable extends AbstractMigration
      */
     public function change()
     {
-        $this->table("quotation_status", ["id"=>false, "primary_key"=>["id_status", "id_quotations"]])
-            ->addColumn("id_status", "integer")
-            ->addColumn("id_quotations", "integer")
-            ->addForeignKey("id_status", "status", "id", [
-                "delete"=>"cascade",
-                "update"=>"cascade"
-            ])
-            ->addForeignKey("id_quotations", "quotations", "id", [
-                "delete"=>"cascade",
-                "update"=>"cascade"
-            ])
+        $table=$this->table("users");
+        $table->addColumn("email", "string")
+            ->addColumn("password", "string")
+            ->addColumn("token", "string")
+            ->addColumn("created_at", "datetime")
+            ->addColumn("updated_at", "datetime")
             ->create();
+
     }
 }

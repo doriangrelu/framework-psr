@@ -11,7 +11,7 @@ namespace App\Bundle;
 use App\Bundle\Auth\Model\Connexion;
 use Framework\Router;
 use Framework\Router\RouterInterface;
-use Framework\Utility\BundleUtility;
+use Framework\Utility\ControllerUtility;
 use Framework\Utility\MailerUtility;
 use Framework\Utility\RequestUtility;
 use Framework\Utility\Utility;
@@ -21,7 +21,7 @@ use Psr\Http\Message\ServerRequestInterface;
 abstract class Bundle
 {
     use Utility;
-    use BundleUtility;
+    use ControllerUtility;
     use RequestUtility;
     use MailerUtility;
 

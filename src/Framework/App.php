@@ -3,16 +3,14 @@
 namespace Framework;
 
 use App\Bundle\Bundle;
-
 use App\Bundle\Routes;
-
-use App\Framework\Dorian;
-use App\Models\Test;
+use App\Event\ErrorHandler;
+use App\Framework\Event\Emitter;
+use App\Framework\Event\SubScriberInterface;
+use App\Framework\Exception\UnsupportedOperationException;
 use DI\ContainerBuilder;
-
 use Doctrine\Common\Cache\FilesystemCache;
 use Framework\Middleware\LoggedInMiddleware;
-
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Container\ContainerInterface;
@@ -22,11 +20,6 @@ use Psr\Http\Message\ServerRequestInterface;
 class App implements DelegateInterface
 {
 
-    /**
-     * List of modules
-     * @var Bundle[]
-     */
-    private $modules = [];
     /**
      * @var array
      */
@@ -53,13 +46,18 @@ class App implements DelegateInterface
     private $index = 0;
 
     /**
+     * @var SubScriberInterface[]
+     */
+    private $subScribers=[];
+
+    /**
      * @var ServerRequestInterface
      */
     private $request;
 
     /**
      * App constructor.
-     * @param $definition
+     * @throws \App\Framework\Event\DoubleEventException
      */
     public function __construct()
     {
@@ -74,40 +72,20 @@ class App implements DelegateInterface
                     case "twig.extensions":
                         $arrayDefinitions[$type] = $definition;
                         break;
+                    case "subscribers":
+                        $this->subScribers=array_merge($this->subScribers,  $definition);
+                        break;
                     default:
                         $arrayDefinitions = array_merge($arrayDefinitions, $definition);
                         break;
                 }
             }
-
             $this->definition[] = $arrayDefinitions;
-
+            self::$containerForFacade = $this->getContainer();
+            $this->addHandler();
         }
     }
 
-    /**
-     * Rajoute un module à l'application
-     *
-     * @param string $module
-     * @return App
-     */
-    public function addModule(string $module): self
-    {
-        $this->modules[] = $module;
-        return $this;
-    }
-
-    /**
-     * Ajoute un middleware
-     *
-     * @param string $middleware
-     * @return App
-     */
-    public function pipe(string $middleware): self
-    {
-        $this->middlewares[] = $middleware;
-        return $this;
-    }
 
     /**
      * @param ServerRequestInterface $request
@@ -124,7 +102,6 @@ class App implements DelegateInterface
         } elseif ($middleware instanceof MiddlewareInterface) {
             return $middleware->process($request, $this);
         }
-
     }
 
 
@@ -152,29 +129,35 @@ class App implements DelegateInterface
      * Container Interface
      * @return ContainerInterface
      */
-    public static function container():ContainerInterface
+    public static function container(): ?ContainerInterface
     {
         return self::$containerForFacade;
     }
 
+    /**
+     * @throws \App\Framework\Event\DoubleEventException
+     */
+    private function addHandler()
+    {
+        foreach ($this->subScribers as $subscriber){
+            $this->getContainer()->get(Emitter::class)->addSubScriber($this->getContainer()->get($subscriber));
+        }
+    }
 
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     * @throws \Exception
+     */
     public function run(ServerRequestInterface $request): ResponseInterface
     {
         $this->request = $request;
         self::$containerForFacade = $this->getContainer();
-        require "src/routes/web.php";
+        require "src/Routes/web.php";
         $this->bindRouteMiddleware($request);
         $request = $request->withAttribute("container", $this->getContainer());
         return $this->process($request);
-    }
-
-
-    private function initRoutesModules(): void
-    {
-        Routes::init($this->getContainer());
-        foreach ($this->modules as $module) {
-            $module::routes($this->container->get(Router::class));
-        }
     }
 
     /**
@@ -209,14 +192,6 @@ class App implements DelegateInterface
             return $middleware;
         }
         return null;
-    }
-
-    /**
-     * @return array
-     */
-    public function getModules(): array
-    {
-        return $this->modules;
     }
 
 }

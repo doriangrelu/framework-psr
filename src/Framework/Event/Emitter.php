@@ -59,6 +59,7 @@ class Emitter
      * @param callable $callable
      * @param int $priority
      * @return Listener
+     * @throws DoubleEventException
      */
     public function once(string $key, callable $callable, $priority = 0): Listener
     {
@@ -108,10 +109,12 @@ class Emitter
     public function emit(string $key, ...$args)
     {
         if (isset($this->events[$key])) {
+
             foreach ($this->events[$key] as $listener) {
-                $listener->handle($args);
-                if ($listener->isStopPropagation()) {
-                    return null;
+                $response =  $listener->handle($args);
+
+                if (!is_null($response)) {
+                    return $response;
                 }
             }
         }

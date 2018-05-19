@@ -8,9 +8,7 @@
 
 namespace Framework\Utility;
 
-use App\Bundle\Bundle;
 use Framework\Cookie\CookieInterface;
-use Framework\Database\TableLoader;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Mode;
 use Framework\Renderer;
@@ -18,13 +16,12 @@ use Framework\Router;
 use Framework\Session\ErrorsManager;
 use Framework\Session\FlashService;
 use Framework\Session\SessionInterface;
-use Framework\Model;
 use Framework\Validator;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-trait BundleUtility
+trait ControllerUtility
 {
     /**
      * @var CookieInterface
@@ -71,6 +68,15 @@ trait BundleUtility
     private $errorsManager;
 
 
+    /**
+     * @var Validator|null
+     */
+    protected $errorsValidator;
+
+    /**
+     * @var array
+     */
+    protected $errorsValue;
 
     /**
      * @var array
@@ -81,28 +87,28 @@ trait BundleUtility
      * @param ServerRequestInterface $request
      * @param ContainerInterface $container
      */
-    public function up(ServerRequestInterface $request, ContainerInterface $container)
+    public function initialize(ServerRequestInterface $request, ContainerInterface $container)
     {
         if (!Mode::is_cli()) {
-            $this->renderer = new Renderer(get_class($this), $container);
+            $this->renderer = $container->get(Renderer::class);
         }
         $this->router = $container->get(Router::class);
         $this->request = $request;
         $this->container = $container;
-        $this->flash=$container->get(FlashService::class);
+        $this->flash = $container->get(FlashService::class);
         $this->session = $this->container->get(SessionInterface::class);
-        $this->cookie=$container->get(CookieInterface::class);
-        $this->errorsManager=$container->get(ErrorsManager::class);
+        $this->cookie = $container->get(CookieInterface::class);
+        $this->errorsManager = $container->get(ErrorsManager::class);
         $this->renderer->make([
-            "appName" => $this->container->get("app.name")
+            "appName" => $this->container->get("name")
         ]);
         $this->makeErrors();
-        $this->activeTable=[];
+        $this->activeTable = [];
     }
 
-    protected function generateTokenCsrf():string
+    protected function generateTokenCsrf(): string
     {
-        $csrfMiddleware=$this->container->get(CsrfMiddleware::class);
+        $csrfMiddleware = $this->container->get(CsrfMiddleware::class);
         return $csrfMiddleware->generateToken();
     }
 
@@ -110,7 +116,7 @@ trait BundleUtility
      * Génère un validator en fonction de la request
      * @return Validator
      */
-    protected function validator():Validator
+    protected function validator(): Validator
     {
         return new Validator($this->request->getParsedBody());
     }
@@ -119,7 +125,7 @@ trait BundleUtility
      * @param Validator $validator
      * @param array $body
      */
-    protected function setErrors(Validator $validator, array $body):void
+    protected function setErrors(Validator $validator, array $body): void
     {
         $this->errorsManager->setValues($body);
         $this->errorsManager->setValidator($validator);
@@ -130,20 +136,21 @@ trait BundleUtility
      */
     protected function makeErrors()
     {
-        $this->errorsValidator=$this->errorsManager->getValidator();
-        $this->errorsValue= $this->errorsManager->getValues();
+        $this->errorsValidator = $this->errorsManager->getValidator();
+        $this->errorsValue = $this->errorsManager->getValues();
         $this->renderer->make([
-            "values"=>is_null($this->errorsValue)?[]:$this->errorsValue,
-            "errors"=>!is_null($this->errorsValidator)?$this->errorsValidator->getErrors():[]
+            "values" => is_null($this->errorsValue) ? [] : $this->errorsValue,
+            "errors" => !is_null($this->errorsValidator) ? $this->errorsValidator->getErrors() : []
         ]);
     }
 
     /**
      * @param string $pageName
      */
-    protected function setPage(string $pageName):void{
+    protected function setPage(string $pageName): void
+    {
         $this->renderer->make([
-            "appPage"=>$pageName
+            "appPage" => $pageName
         ]);
     }
 
@@ -153,7 +160,7 @@ trait BundleUtility
      * @param array|null $queryParams
      * @return null|string
      */
-    protected function generateUri(string $name, ?array $params=[], ?array $queryParams=[]):?string
+    protected function generateUri(string $name, ?array $params = [], ?array $queryParams = []): ?string
     {
         return $this->router->generateUri($name, $params, $queryParams);
     }
@@ -164,7 +171,7 @@ trait BundleUtility
      * @param array|null $queryParams
      * @return ResponseInterface
      */
-    protected function redirect(string $name, ?array $params=[], ?array $queryParams=[]):ResponseInterface
+    protected function redirect(string $name, ?array $params = [], ?array $queryParams = []): ResponseInterface
     {
         return $this->router->redirect($name, $params, $queryParams);
     }
