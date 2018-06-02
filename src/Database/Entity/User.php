@@ -1,16 +1,16 @@
 <?php
 
-namespace MyNamespace\Entity;
+
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Products
+ * User
  *
- * @ORM\Table(name="products")
+ * @ORM\Table(name="user")
  * @ORM\Entity
  */
-class Products
+class User
 {
     /**
      * @var int
@@ -28,19 +28,13 @@ class Products
      */
     private $name;
 
-    /**
-     * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\ManyToMany(targetEntity="MyNamespace\Entity\User", mappedBy="product")
-     */
-    private $user;
 
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->user = new \Doctrine\Common\Collections\ArrayCollection();
+
     }
 
 }

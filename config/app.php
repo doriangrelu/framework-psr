@@ -41,7 +41,8 @@ return [
             "userTable" => "",
             "rolesTable" => "",
             "tokenSecurity" => true
-        ]
+        ],
+        "seed" => dirname(__DIR__) . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR . "Database" . DIRECTORY_SEPARATOR . "Seed" . DIRECTORY_SEPARATOR
     ],
 
     /**
@@ -132,9 +133,10 @@ return [
                 'dbname' => $c->get("database.name"),
                 'host' => $c->get("database.host")
             );
-            $paths = [dirname(__DIR__) . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR . "Database" . DIRECTORY_SEPARATOR . "entity"];
+            $paths = [dirname(__DIR__) . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR . "Database" . DIRECTORY_SEPARATOR . "Entity"];
+            //$paths = [dirname(__DIR__) . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR];
             $isDevMode = $c->get("mode") === Mode::DEVELOPPEMENT;
-            $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
+            $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
             return EntityManager::create($dbParams, $config);;
         },
         FluentPDO::class => DI\object()->constructor(DI\get(\PDO::class)),

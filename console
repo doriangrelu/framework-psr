@@ -1,8 +1,9 @@
 <?php
-
-require 'vendor/autoload.php';
 chdir(dirname(__DIR__));
-$console = new \App\Framework\Console\Console($argv);
+require 'vendor/autoload.php';
+require 'public/index.php';
+
+$console = new \App\Framework\Console\Console($app, $argv);
 try{
     $console->run();
 } catch (\App\Framework\Console\ConsoleParserException $e){

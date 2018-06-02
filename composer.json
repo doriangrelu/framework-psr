@@ -13,8 +13,10 @@
         "psr-4": {
             "Framework\\": "src/Framework",
             "App\\": "src",
+            "Entity\\": "src/Database/Entity",
             "Tests\\": "tests"
-        }
+        },
+      "psr-0": {"": "src/Database/Entity"}
     },
     "require": {
         "guzzlehttp/psr7": "^1.4",
