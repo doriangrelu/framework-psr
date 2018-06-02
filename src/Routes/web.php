@@ -7,7 +7,6 @@
  */
 
 use App\Controllers\BaseController;
-use Framework\Router\RouterFactory;
 use App\Framework\Facades\Route;
 
 Route::get("/", [BaseController::class, "index"], "base");

@@ -36,7 +36,8 @@
         "spipu/html2pdf": "^5.0",
         "lichtner/fluentpdo": "^1.1",
         "pekkis/queue": "^3.0",
-        "filp/whoops": "^2.1"
+        "filp/whoops": "^2.1",
+        "doctrine/orm": "^2.6"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.0",

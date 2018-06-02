@@ -11,6 +11,7 @@ namespace App\Controllers;
 
 use App\Bundle\Auth\Model\Connexion;
 use App\Framework\Controller;
+use Doctrine\ORM\EntityManager;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -23,9 +24,8 @@ class BaseController extends Controller
     }
 
     public function index(){
+        $pdo = $this->container->get(EntityManager::class);
 
-        $connexion = new Connexion($this->container);
-        $connexion->getUser();
 
         return "Bienvenue";
     }

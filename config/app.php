@@ -2,6 +2,8 @@
 
 use App\Event\ErrorHandler;
 use App\Framework\Middleware\AttachMiddleware;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Setup;
 use Framework\Cookie\CookieInterface;
 use Framework\Cookie\PHPCookie;
 use Framework\Middleware\CsrfMiddleware;
@@ -28,23 +30,24 @@ use Framework\Twig\RouterTwigExtension;
 use Framework\Twig\TextExtension;
 use Framework\Twig\TimeExtension;
 use Middlewares\Whoops;
+use Psr\Container\ContainerInterface;
 
 return [
 
     "app" => [
-        "name"=>"Application Name Here",
+        "name" => "Application Name Here",
         "mode" => Mode::DEVELOPPEMENT,
-        "auth"=>[
-            "userTable"=>"",
-            "rolesTable"=>"",
-            "tokenSecurity"=>true
+        "auth" => [
+            "userTable" => "",
+            "rolesTable" => "",
+            "tokenSecurity" => true
         ]
     ],
 
     /**
      * Auto add subscriber Handler
      */
-    "subscribers"=>[
+    "subscribers" => [
         ErrorHandler::class
     ],
 
@@ -103,13 +106,13 @@ return [
     /**
      * Dependencies injection definitions
      */
-    'container'=>[
-        CookieInterface::class=> \DI\object(PHPCookie::class),
+    'container' => [
+        CookieInterface::class => \DI\object(PHPCookie::class),
         SessionInterface::class => \DI\object(PHPSession::class),
         CsrfMiddleware::class => \DI\object()->constructor(\DI\get(SessionInterface::class), \DI\get(CookieInterface::class)),
         RouterInterface::class => \DI\object(Router::class),
-        ErrorsManager::class=>\DI\object(ErrorsManager::class),
-        \PDO::class => function (\Psr\Container\ContainerInterface $c) {
+        ErrorsManager::class => \DI\object(ErrorsManager::class),
+        \PDO::class => function (ContainerInterface $c) {
             return new PDO(
                 'mysql:host=' . $c->get('database.host') . ';dbname=' . $c->get('database.name'),
                 $c->get('database.username'),
@@ -119,6 +122,20 @@ return [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                 ]
             );
+        },
+        EntityManager::class => function (ContainerInterface $c) {
+            // the connection configuration
+            $dbParams = array(
+                'driver' => 'pdo_mysql',
+                'user' => $c->get("database.username"),
+                'password' => $c->get("database.password"),
+                'dbname' => $c->get("database.name"),
+                'host' => $c->get("database.host")
+            );
+            $paths = [dirname(__DIR__) . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR . "Database" . DIRECTORY_SEPARATOR . "entity"];
+            $isDevMode = $c->get("mode") === Mode::DEVELOPPEMENT;
+            $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
+            return EntityManager::create($dbParams, $config);;
         },
         FluentPDO::class => DI\object()->constructor(DI\get(\PDO::class)),
 

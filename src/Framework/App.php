@@ -10,6 +10,7 @@ use App\Framework\Event\SubScriberInterface;
 use App\Framework\Exception\UnsupportedOperationException;
 use DI\ContainerBuilder;
 use Doctrine\Common\Cache\FilesystemCache;
+use Doctrine\ORM\EntityManager;
 use Framework\Middleware\LoggedInMiddleware;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
@@ -193,5 +194,7 @@ class App implements DelegateInterface
         }
         return null;
     }
+
+
 
 }

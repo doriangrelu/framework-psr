@@ -47,6 +47,10 @@ class SelectQuery extends Query
 
     }
 
+    public function first(){
+
+    }
+
     /**
      * Definit le FROM
      * @param string $table

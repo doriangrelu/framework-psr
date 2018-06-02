@@ -9,6 +9,7 @@
 namespace Framework\Router;
 
 
+use App\Framework\Auth\Role;
 use Framework\Router;
 
 class RouteScope extends RouterFactory
@@ -29,16 +30,23 @@ class RouteScope extends RouterFactory
     private $middlewares = [];
 
     /**
+     * @var Role[]
+     */
+    private $roles = [];
+
+    /**
      * RouteScope constructor.
      * @param string $prefix
      * @param Router $router
      * @param array $middlewares
+     * @param Role[] $roles
      */
-    public function __construct(string $prefix, Router $router, array $middlewares =[])
+    public function __construct(string $prefix, Router $router, array $middlewares =[], array $roles = [])
     {
         $this->prefix=trim($prefix, "/");
         $this->middlewares = $middlewares;
         $this->router=$router;
+        $this->roles=$roles;
     }
 
     /**
@@ -56,6 +64,9 @@ class RouteScope extends RouterFactory
         foreach($this->middlewares as $middleware){
             $route->bind($middleware);
         }
+        foreach ($this->roles as $role){
+            $route->require($role);
+        }
         return $route;
     }
 
@@ -63,8 +74,9 @@ class RouteScope extends RouterFactory
      * @param string $path
      * @param callable $callback
      * @param array $middlewares
+     * @param Role[] $roles
      */
-    public function scope(string $path, callable $callback, array $middlewares=[]): void
+    public function scope(string $path, callable $callback, array $middlewares=[], array $roles = []): void
     {
         $path=$this->prefix."/".trim($path, "/");
         $this->middlewares = $middlewares;

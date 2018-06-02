@@ -8,12 +8,9 @@
 
 namespace App\Event;
 
-
 use App\Framework\Event\SubScriberInterface;
-use Framework\App;
 use GuzzleHttp\Psr7\Response;
 use function Http\Response\send;
-use Whoops\Run;
 
 class ErrorHandler implements SubScriberInterface
 {
@@ -28,17 +25,13 @@ class ErrorHandler implements SubScriberInterface
     public function getEvents(): array
     {
        return [
-           "on.error"=>"errorHandler"
+           "on.404"=>"notFound"
        ];
     }
 
-    public function errorHandler(\Exception $e){
-        /*ob_start();
-        dump($e);
-        $error=ob_get_clean();
-        send(new Response(500, [], $error));*/
-
-        trigger_error($this->getMessageFromException($e), E_USER_ERROR);
+    public function notFound()
+    {
+        send(new Response(404, [], "Error 404"));
     }
 
     private function getMessageFromException(\Exception $e)
