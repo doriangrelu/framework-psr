@@ -1,6 +1,5 @@
 <?php
 date_default_timezone_set("Europe/Paris");
-define("DS", DIRECTORY_SEPARATOR);
 $root = dirname(__DIR__) . DS;
 trim($root, DS);
 if (DS == "\\") {

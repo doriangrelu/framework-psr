@@ -1,7 +1,5 @@
 <?php
 
-use App\Event\ErrorHandler;
-use App\Framework\Event\Emitter;
 use Framework\App;
 use Framework\Mode;
 use GuzzleHttp\Psr7\Response;

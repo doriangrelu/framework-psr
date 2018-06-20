@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Phinxlog
  *
  * @ORM\Table(name="phinxlog")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repositories\PhinxlogRepository")
  */
 class Phinxlog
 {

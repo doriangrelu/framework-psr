@@ -8,6 +8,7 @@
 
 namespace Framework\Utility;
 
+use Doctrine\ORM\EntityManager;
 use Framework\Cookie\CookieInterface;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Mode;
@@ -82,6 +83,7 @@ trait ControllerUtility
      * @var array
      */
     private $activeTable;
+
 
     /**
      * @param ServerRequestInterface $request
@@ -175,4 +177,13 @@ trait ControllerUtility
     {
         return $this->router->redirect($name, $params, $queryParams);
     }
+
+    /**
+     * @return EntityManager
+     */
+    protected function table():EntityManager
+    {
+        return $this->container->get(EntityManager::class);
+    }
+
 }

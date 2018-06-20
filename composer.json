@@ -39,12 +39,12 @@
         "lichtner/fluentpdo": "^1.1",
         "pekkis/queue": "^3.0",
         "filp/whoops": "^2.1",
-        "doctrine/orm": "^2.6"
+        "doctrine/orm": "^2.6",
+        "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.0",
         "phpunit/phpunit": "^6.2",
-        "robmorgan/phinx": "^0.8.1",
         "fzaninotto/faker": "^1.7"
     }
 }

@@ -8,8 +8,6 @@
 
 namespace App\Controllers;
 
-
-use App\Bundle\Auth\Model\Connexion;
 use App\Framework\Controller;
 use Doctrine\ORM\EntityManager;
 
@@ -26,9 +24,8 @@ class BaseController extends Controller
     }
 
     public function index(){
-        $manager = $this->container->get(EntityManager::class);
-        dd($manager->find("Phinxlog", "20180513211433"));
-        dd($manager->getConfiguration());
+        $repository = $this->table()->getRepository("Phinxlog");
+        dd($repository->getTest());
 
         return "Bienvenue";
     }
