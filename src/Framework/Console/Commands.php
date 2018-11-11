@@ -33,9 +33,11 @@ class Commands
         $this->root = dirname(dirname(__DIR__)) . self::DS;
     }
 
-    private function controller($name)
+    private function controller()
     {
 
+
+        die('here');
     }
 
     public function models($name)
