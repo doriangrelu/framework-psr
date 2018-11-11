@@ -9,8 +9,6 @@
 namespace Framework\Router;
 
 
-use Framework\Router;
-
 abstract class RouterFactory
 {
 

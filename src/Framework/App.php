@@ -2,15 +2,10 @@
 
 namespace Framework;
 
-use App\Bundle\Bundle;
-use App\Bundle\Routes;
-use App\Event\ErrorHandler;
 use App\Framework\Event\Emitter;
 use App\Framework\Event\SubScriberInterface;
-use App\Framework\Exception\UnsupportedOperationException;
 use DI\ContainerBuilder;
 use Doctrine\Common\Cache\FilesystemCache;
-use Doctrine\ORM\EntityManager;
 use Framework\Middleware\LoggedInMiddleware;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
@@ -49,7 +44,7 @@ class App implements DelegateInterface
     /**
      * @var SubScriberInterface[]
      */
-    private $subScribers=[];
+    private $subScribers = [];
 
     /**
      * @var ServerRequestInterface
@@ -63,7 +58,8 @@ class App implements DelegateInterface
     public function __construct()
     {
         $definitions = require "config/app.php";
-        $arrayDefinitions = [];
+        $arrayDefinitions = require 'config/services.php';
+
         if (is_array($definitions)) {
             foreach ($definitions as $type => $definition) {
                 switch ($type) {
@@ -74,7 +70,7 @@ class App implements DelegateInterface
                         $arrayDefinitions[$type] = $definition;
                         break;
                     case "subscribers":
-                        $this->subScribers=array_merge($this->subScribers,  $definition);
+                        $this->subScribers = array_merge($this->subScribers, $definition);
                         break;
                     default:
                         $arrayDefinitions = array_merge($arrayDefinitions, $definition);
@@ -140,7 +136,7 @@ class App implements DelegateInterface
      */
     private function addHandler()
     {
-        foreach ($this->subScribers as $subscriber){
+        foreach ($this->subScribers as $subscriber) {
             $this->getContainer()->get(Emitter::class)->addSubScriber($this->getContainer()->get($subscriber));
         }
     }
@@ -179,6 +175,7 @@ class App implements DelegateInterface
 
             $this->container = $builder->build();
         }
+
         return $this->container;
     }
 
@@ -194,7 +191,6 @@ class App implements DelegateInterface
         }
         return null;
     }
-
 
 
 }

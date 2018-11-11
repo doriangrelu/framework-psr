@@ -52,6 +52,12 @@ class CsrfMiddleware implements MiddlewareInterface
         $this->limit = $limit;
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param DelegateInterface $delegate
+     * @return ResponseInterface
+     * @throws CsrfInvalidException
+     */
     public function process(ServerRequestInterface $request, DelegateInterface $delegate): ResponseInterface
     {
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE'])) {
@@ -83,6 +89,9 @@ class CsrfMiddleware implements MiddlewareInterface
         return $token;
     }
 
+    /**
+     * @throws CsrfInvalidException
+     */
     private function reject(): void
     {
         throw new CsrfInvalidException();
@@ -106,6 +115,9 @@ class CsrfMiddleware implements MiddlewareInterface
         $this->session[$this->sessionKey] = $tokens;
     }
 
+    /**
+     * @param $session
+     */
     private function validSession($session)
     {
         if (!is_array($session) && !$session instanceof \ArrayAccess) {

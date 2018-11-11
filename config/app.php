@@ -1,14 +1,14 @@
 <?php
 
 use App\Event\ErrorHandler;
-use App\Framework\Middleware\AttachMiddleware;
+use App\Framework\Auth\Auth;
+use App\Framework\Auth\AuthInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 use Framework\Cookie\CookieInterface;
 use Framework\Cookie\PHPCookie;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Middleware\DispatcherMiddleware;
-use Framework\Middleware\LoggedInMiddleware;
 use Framework\Middleware\MethodMiddleware;
 use Framework\Middleware\NotFoundMiddleware;
 use Framework\Middleware\RouterMiddleware;
@@ -34,6 +34,9 @@ use Psr\Container\ContainerInterface;
 
 return [
 
+    /**
+     * App Configuration
+     */
     "app" => [
         "name" => "Application Name Here",
         "mode" => Mode::DEVELOPPEMENT,
@@ -46,6 +49,16 @@ return [
     ],
 
     /**
+     * Auth Configuration
+     */
+    "Auth" => [
+        "Auth.actived"=>true, // Active module
+        "Auth.Exception" => false, //Exception if is forbidden
+        "Auth.route.redirectLogin" => "", // If forbidden route name redirection to login page
+        "Auth.user" => "", //Implemention of App\Framework\Auth\UserInterface
+    ],
+
+    /**
      * Auto add subscriber Handler
      */
     "subscribers" => [
@@ -53,28 +66,13 @@ return [
     ],
 
     /**
-     * Middleware Définition for Application
-     */
-    "middlewares" => [
-        TrailingSlashMiddleware::class,
-        MethodMiddleware::class,
-        CsrfMiddleware::class,
-        RouterMiddleware::class,
-        LoggedInMiddleware::class,
-        AttachMiddleware::class,
-        DispatcherMiddleware::class,
-        NotFoundMiddleware::class,
-        Whoops::class
-    ],
-
-    /**
      * Database définition
      */
     "database" => [
         'database.host' => 'localhost',
-        'database.username' => 'homestead',
-        'database.password' => 'secret',
-        'database.name' => 'homestead'
+        'database.username' => 'root',
+        'database.password' => '',
+        'database.name' => 'doriangrelu'
     ],
 
     /**
@@ -105,42 +103,15 @@ return [
     ],
 
     /**
-     * Dependencies injection definitions
+     * Middleware Définition for Application
      */
-    'container' => [
-        CookieInterface::class => \DI\object(PHPCookie::class),
-        SessionInterface::class => \DI\object(PHPSession::class),
-        CsrfMiddleware::class => \DI\object()->constructor(\DI\get(SessionInterface::class), \DI\get(CookieInterface::class)),
-        RouterInterface::class => \DI\object(Router::class),
-        ErrorsManager::class => \DI\object(ErrorsManager::class),
-        \PDO::class => function (ContainerInterface $c) {
-            return new PDO(
-                'mysql:host=' . $c->get('database.host') . ';dbname=' . $c->get('database.name'),
-                $c->get('database.username'),
-                $c->get('database.password'),
-                [
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-                ]
-            );
-        },
-        EntityManager::class => function (ContainerInterface $c) {
-            // the connection configuration
-            $dbParams = array(
-                'driver' => 'pdo_mysql',
-                'user' => $c->get("database.username"),
-                'password' => $c->get("database.password"),
-                'dbname' => $c->get("database.name"),
-                'host' => $c->get("database.host")
-            );
-            $paths = [dirname(__DIR__) . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR . "Database" . DIRECTORY_SEPARATOR . "Entity"];
-            //$paths = [dirname(__DIR__) . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR];
-            $isDevMode = $c->get("mode") === Mode::DEVELOPPEMENT;
-            $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
-            return EntityManager::create($dbParams, $config);;
-        },
-        FluentPDO::class => DI\object()->constructor(DI\get(\PDO::class)),
-
-    ]
-
+    "middlewares" => [
+        TrailingSlashMiddleware::class,
+        MethodMiddleware::class,
+        CsrfMiddleware::class,
+        RouterMiddleware::class,
+        DispatcherMiddleware::class,
+        NotFoundMiddleware::class,
+        Whoops::class
+    ],
 ];

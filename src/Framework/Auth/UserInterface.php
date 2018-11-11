@@ -25,4 +25,9 @@ interface UserInterface
      * @return []
      */
     public function getRoles():array;
+
+    public function serialized():string;
+
+    public function unserialized(string $serialisedUser);
+
 }

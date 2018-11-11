@@ -1,19 +1,40 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: doria
- * Date: 26/11/2017
- * Time: 16:37
+ * User: Dorian
+ * Date: 11/11/2018
+ * Time: 15:58
  */
 
-namespace Framework\Auth;
+namespace App\Framework\Auth;
 
+
+use Framework\Auth\UserInterface;
 
 interface AuthInterface
 {
+
     /**
-     * Retourne une intance de l'objet user, correspondant à l'utilisateur connecté. Si aucun utilisateur connecté null.
-     * @return null|UserInterface
+     * @return UserInterface
      */
-    public function getUser(): ?UserInterface;
+    public function getUser(): UserInterface;
+
+    /**
+     * @return Auth
+     */
+    public function allowController(): AuthInterface;
+
+    /**
+     * @param $allowedMethod
+     * @return Auth
+     */
+    public function allowMethods($allowedMethod): AuthInterface;
+
+    /**
+     * @param string $requestedMethod
+     * @return bool
+     */
+    public function access(string $requestedMethod): bool;
+
+
 }

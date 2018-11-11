@@ -8,16 +8,13 @@
 
 namespace Framework\Utility;
 
+use App\Framework\Auth\AuthInterface;
 use Doctrine\ORM\EntityManager;
-use Framework\Cookie\CookieInterface;
 use Framework\Middleware\CsrfMiddleware;
-use Framework\Mode;
 use Framework\Renderer;
 use Framework\Router;
-use Framework\Session\ErrorsManager;
+use Framework\Router\RouterInterface;
 use Framework\Session\FlashService;
-use Framework\Session\SessionInterface;
-use Framework\Validator;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,54 +22,36 @@ use Psr\Http\Message\ServerRequestInterface;
 trait ControllerUtility
 {
     /**
-     * @var CookieInterface
+     * @var AuthInterface
      */
-    protected $cookie;
+    private $_auth;
 
     /**
      * Représente la page active
      * @var
      */
     protected $appPage;
-    /**
-     * @var SessionInterface
-     */
-    protected $session;
-    /**
-     * @var FlashService
-     */
-    protected $flash;
+
 
     /**
      * @var Renderer
      */
-    protected $renderer;
+    private $_renderer;
 
     /**
      * @var ServerRequestInterface
      */
-    protected $request;
+    private $_request;
 
     /**
      * @var ContainerInterface
      */
-    protected $container;
+    private $_container;
 
     /**
      * @var Router
      */
-    private $router;
-
-    /**
-     * @var ErrorsManager
-     */
-    private $errorsManager;
-
-
-    /**
-     * @var Validator|null
-     */
-    protected $errorsValidator;
+    private $_router;
 
     /**
      * @var array
@@ -84,66 +63,63 @@ trait ControllerUtility
      */
     private $activeTable;
 
-
     /**
-     * @param ServerRequestInterface $request
      * @param ContainerInterface $container
      */
-    public function initialize(ServerRequestInterface $request, ContainerInterface $container)
+    public function initialize(ContainerInterface $container)
     {
-        if (!Mode::is_cli()) {
-            $this->renderer = $container->get(Renderer::class);
-        }
-        $this->router = $container->get(Router::class);
-        $this->request = $request;
-        $this->container = $container;
-        $this->flash = $container->get(FlashService::class);
-        $this->session = $this->container->get(SessionInterface::class);
-        $this->cookie = $container->get(CookieInterface::class);
-        $this->errorsManager = $container->get(ErrorsManager::class);
-        $this->renderer->make([
-            "appName" => $this->container->get("name")
+        $this->_container = $container;
+        $this->_container->get(Renderer::class)->make([
+            "appName" => $this->_container->get("name")
         ]);
-        $this->makeErrors();
         $this->activeTable = [];
     }
 
+    /**
+     * @param string $controllerAction
+     * @return bool
+     */
+    public function getSecurity(string $controllerAction): bool
+    {
+        return $this->getAuth()->access($controllerAction);
+    }
+
+    /**
+     * @return Renderer
+     */
+    protected function getRenderer(): Renderer
+    {
+        return $this->_renderer;
+    }
+
+    /**
+     * Define rules Auth Component Here
+     */
+    public function setSecurity(): void
+    {
+
+    }
+
+    protected function getRequest(): ServerRequestInterface
+    {
+        return $this->_container->get(ServerRequestInterface::class);
+    }
+
+    /**
+     * @return string
+     */
     protected function generateTokenCsrf(): string
     {
-        $csrfMiddleware = $this->container->get(CsrfMiddleware::class);
+        $csrfMiddleware = $this->_container->get(CsrfMiddleware::class);
         return $csrfMiddleware->generateToken();
     }
 
     /**
-     * Génère un validator en fonction de la request
-     * @return Validator
+     * @return AuthInterface
      */
-    protected function validator(): Validator
+    protected function getAuth(): AuthInterface
     {
-        return new Validator($this->request->getParsedBody());
-    }
-
-    /**
-     * @param Validator $validator
-     * @param array $body
-     */
-    protected function setErrors(Validator $validator, array $body): void
-    {
-        $this->errorsManager->setValues($body);
-        $this->errorsManager->setValidator($validator);
-    }
-
-    /**
-     * Passe les différentes erreurs à la vue si il y en a
-     */
-    protected function makeErrors()
-    {
-        $this->errorsValidator = $this->errorsManager->getValidator();
-        $this->errorsValue = $this->errorsManager->getValues();
-        $this->renderer->make([
-            "values" => is_null($this->errorsValue) ? [] : $this->errorsValue,
-            "errors" => !is_null($this->errorsValidator) ? $this->errorsValidator->getErrors() : []
-        ]);
+        return $this->_container->get(AuthInterface::class);
     }
 
     /**
@@ -151,7 +127,7 @@ trait ControllerUtility
      */
     protected function setPage(string $pageName): void
     {
-        $this->renderer->make([
+        $this->_container->get(Renderer::class)->make([
             "appPage" => $pageName
         ]);
     }
@@ -164,7 +140,7 @@ trait ControllerUtility
      */
     protected function generateUri(string $name, ?array $params = [], ?array $queryParams = []): ?string
     {
-        return $this->router->generateUri($name, $params, $queryParams);
+        return $this->_container->get(RouterInterface::class)->generateUri($name, $params, $queryParams);
     }
 
     /**
@@ -175,15 +151,23 @@ trait ControllerUtility
      */
     protected function redirect(string $name, ?array $params = [], ?array $queryParams = []): ResponseInterface
     {
-        return $this->router->redirect($name, $params, $queryParams);
+        return $this->_container->get(RouterInterface::class)->redirect($name, $params, $queryParams);
     }
 
     /**
      * @return EntityManager
      */
-    protected function table():EntityManager
+    protected function table(): EntityManager
     {
-        return $this->container->get(EntityManager::class);
+        return $this->_container->get(EntityManager::class);
+    }
+
+    /**
+     * @return FlashService
+     */
+    protected function getFlash(): FlashService
+    {
+        return $this->_container->get(FlashService::class);
     }
 
 }

@@ -29,12 +29,8 @@ class User implements UserInterface
      */
     private $secret;
 
-
-    public function __construct(string $username, int $id, ?array $roles = [])
+    public function __construct()
     {
-        $this->username = $username;
-        $this->roles = $roles;
-        $this->id = $id;
     }
 
 
@@ -65,5 +61,15 @@ class User implements UserInterface
     public function getRoles(): array
     {
         return $this->roles;
+    }
+
+    public function serialized(): string
+    {
+        // TODO: Implement serialized() method.
+    }
+
+    public function unserialized(string $serialisedUser)
+    {
+        // TODO: Implement unserialized() method.
     }
 }

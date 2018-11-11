@@ -8,6 +8,7 @@
 
 namespace App\Controllers;
 
+use App\Framework\Auth\AuthInterface;
 use App\Framework\Controller;
 use Doctrine\ORM\EntityManager;
 
@@ -18,14 +19,15 @@ use Psr\Http\Message\ServerRequestInterface;
 class BaseController extends Controller
 {
 
-    public function __construct(ServerRequestInterface $request, ContainerInterface $container)
+    public function setSecurity(): void
     {
-        parent::__construct($request, $container);
+        $this->getAuth()->allowController();
     }
 
-    public function index(){
+    public function index()
+    {
         $repository = $this->table()->getRepository("Phinxlog");
-        dd($repository->getTest());
+        dd($repository->getTest() . "test");
 
         return "Bienvenue";
     }
