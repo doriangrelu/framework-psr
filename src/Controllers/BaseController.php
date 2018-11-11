@@ -8,13 +8,8 @@
 
 namespace App\Controllers;
 
-use App\Framework\Auth\AuthInterface;
 use App\Framework\Controller;
-use Doctrine\ORM\EntityManager;
 
-
-use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 class BaseController extends Controller
 {

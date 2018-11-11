@@ -9,6 +9,7 @@ use Framework\Cookie\CookieInterface;
 use Framework\Cookie\PHPCookie;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Middleware\DispatcherMiddleware;
+use Framework\Middleware\EventsMiddleware;
 use Framework\Middleware\MethodMiddleware;
 use Framework\Middleware\NotFoundMiddleware;
 use Framework\Middleware\RouterMiddleware;
@@ -58,12 +59,7 @@ return [
         "Auth.user" => "", //Implemention of App\Framework\Auth\UserInterface
     ],
 
-    /**
-     * Auto add subscriber Handler
-     */
-    "subscribers" => [
-        ErrorHandler::class
-    ],
+
 
     /**
      * Database définition
@@ -107,6 +103,7 @@ return [
      */
     "middlewares" => [
         TrailingSlashMiddleware::class,
+        EventsMiddleware::class,
         MethodMiddleware::class,
         CsrfMiddleware::class,
         RouterMiddleware::class,

@@ -10,7 +10,6 @@ use Framework\Cookie\PHPCookie;
 use Framework\Mode;
 use Framework\Router;
 use Framework\Router\RouterInterface;
-use Framework\Session\ErrorsManager;
 use Framework\Session\PHPSession;
 use Framework\Session\SessionInterface;
 use Psr\Container\ContainerInterface;
@@ -20,7 +19,6 @@ return [
     SessionInterface::class => \DI\object(PHPSession::class),
     CsrfMiddleware::class => \DI\object()->constructor(\DI\get(SessionInterface::class), \DI\get(CookieInterface::class)),
     RouterInterface::class => \DI\object(Router::class),
-    ErrorsManager::class => \DI\object(ErrorsManager::class),
     AuthInterface::class => \DI\object(Auth::class),
     \Framework\Auth\UserInterface::class => \DI\object(\Framework\Auth\User::class),
     \PDO::class => function (ContainerInterface $c) {
