@@ -1,0 +1,80 @@
+<?php
+
+
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Pages
+ *
+ * @ORM\Table(name="pages", indexes={@ORM\Index(name="pages_posts_FK", columns={"post_id"}), @ORM\Index(name="pages_extensions0_FK", columns={"extension_id"})})
+ * @ORM\Entity
+ */
+class Pages
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="title", type="string", length=255, nullable=false)
+     */
+    private $title;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="slug", type="string", length=255, nullable=false)
+     */
+    private $slug;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="number", type="integer", nullable=false)
+     */
+    private $number;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created", type="datetime", nullable=false)
+     */
+    private $created;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modified", type="datetime", nullable=false)
+     */
+    private $modified;
+
+    /**
+     * @var \Extensions
+     *
+     * @ORM\ManyToOne(targetEntity="Extensions")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="extension_id", referencedColumnName="id")
+     * })
+     */
+    private $extension;
+
+    /**
+     * @var \Posts
+     *
+     * @ORM\ManyToOne(targetEntity="Posts")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="post_id", referencedColumnName="id")
+     * })
+     */
+    private $post;
+
+
+}

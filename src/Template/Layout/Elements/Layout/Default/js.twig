@@ -1,32 +1,3 @@
-{{ cdn_js("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js") }}
-{{ js("vendor/bootstrap/js/bootstrap.bundle.min.js", false) }}
-{{ js("vendor/jquery-easing/jquery.easing.min.js", false) }}
-<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+{% block js %}
 
-{{ js("vendor/datatables/jquery.dataTables.js", false) }}
-{{ js("vendor/datatables/dataTables.bootstrap4.js", false) }}
-{{ js("sb-admin.min.js") }}
-{{ js("datatable.js") }}
-{{ cdn_js("//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js") }}
-{{ cdn_js("https://cdnjs.cloudflare.com/ajax/libs/timeago.js/3.0.2/timeago.min.js") }}
-{{ cdn_js("https://cdnjs.cloudflare.com/ajax/libs/timeago.js/3.0.2/timeago.locales.min.js") }}
-{{ cdn_js("https://cdnjs.cloudflare.com/ajax/libs/flatpickr/3.0.7/flatpickr.js") }}
-{{ cdn_js("https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.1.4/l10n/fr.js") }}
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-{{ js("general.js") }}
-{{ js("input.js") }}
-{{ js("form.js") }}
-{{ js("columns.min.js") }}
-{{ cdn_js("https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js") }}
-{#
-
-<script defer src="https://use.fontawesome.com/releases/v5.0.9/js/all.js" integrity="sha384-8iPTk2s/jMVj81dnzb/iFR2sdA7u06vHJyyLlAd4snFpCl/SnyUjRrbdJsw1pGIl" crossorigin="anonymous"></script>
-#}
-
-
-
-<script>
-    $(function () {
-        $("table").resizableColumns();
-    });
-</script>
+{% endblock %}

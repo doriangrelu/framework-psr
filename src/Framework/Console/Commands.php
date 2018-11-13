@@ -9,7 +9,6 @@
 namespace App\Framework\Console;
 
 
-use App\Framework\Event\DoubleEventException;
 use Cake\Utility\Inflector;
 use Framework\App;
 
@@ -40,9 +39,19 @@ class Commands
         die('here');
     }
 
-    public function models($name)
+    public function models()
     {
 
+        $entityPath = './src/Database/Entity';
+
+        echo shell_exec(<<<EOD
+vendor\bin\doctrine.bat orm:convert-mapping --force --from-database annotation $entityPath
+EOD
+);
+        echo shell_exec(<<<EOD
+vendor\bin\doctrine.bat orm:generate-entities $entityPath --generate-annotations=true
+EOD
+);
     }
 
     /**

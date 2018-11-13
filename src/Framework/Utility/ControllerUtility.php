@@ -10,6 +10,7 @@ namespace Framework\Utility;
 
 use App\Framework\Auth\AuthInterface;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Renderer;
 use Framework\Router;
@@ -89,7 +90,7 @@ trait ControllerUtility
      */
     protected function getRenderer(): Renderer
     {
-        return $this->_renderer;
+        return $this->_container->get(Renderer::class);
     }
 
     /**
@@ -160,6 +161,15 @@ trait ControllerUtility
     protected function table(): EntityManager
     {
         return $this->_container->get(EntityManager::class);
+    }
+
+    /**
+     * @param string $tableName
+     * @return EntityRepository
+     */
+    protected function getRepository(string $entityName): EntityRepository
+    {
+        return $this->table()->getRepository($entityName);
     }
 
     /**

@@ -13,7 +13,7 @@ use Framework\App;
 
 class Console
 {
-    private $_pattern = "#^(make:)([controller]+|[model]+|[migration]+|[fixture]+)[\s]{1}([\w\-\/]{2,})$#i";
+    private $_pattern = "#^(make:)([controller]+|[models]+|[migration]+|[fixture]+)[\s]{1}([\w\-\/]{2,})$#i";
     private $_command;
     private $_matchesGroup = [];
     private $_app;

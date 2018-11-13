@@ -1,38 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
-{% include "Layout/Default/head.twig" %}
-
-<body class="bg-dark">
-<div class="container">
-
-    <div class="card card-login mx-auto mt-5">
-
-        <div class="card-header">
-            <h1>{{ appPage }}</h1>
-            <nav aria-label="breadcrumb" role="navigation">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ path("home") }}">Accueil</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ appPage }}</li>
-                </ol>
-            </nav>
-        </div>
-        <div class="card-body">
-            {% include "Flash/Flash.twig" %}<br>
-            {% block content %}
-
-            {% endblock %}
-        </div>
-    </div>
-</div>
-
-{% include "Layout/Default/js.twig" %}
-
-<script>
-    timeago().render(document.querySelectorAll('.timeago'), 'fr')
-</script>
-{% block js %}
+{% include "Elements/Layout/Default/head.twig" %}
+<body>
+{% include "Elements/Layout/Default/navbar.twig" %}
+{% include "Elements/Layout/Default/header.twig" %}
+{% block body %}
 
 {% endblock %}
-
+{% include "Elements/Layout/Default/js.twig" %}
+</body>
 </html>

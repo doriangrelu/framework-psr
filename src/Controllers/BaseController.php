@@ -9,6 +9,7 @@
 namespace App\Controllers;
 
 use App\Framework\Controller;
+use App\Framework\Exception\RendererException;
 
 
 class BaseController extends Controller
@@ -21,10 +22,9 @@ class BaseController extends Controller
 
     public function index()
     {
-        $repository = $this->table()->getRepository("Phinxlog");
-        dd($repository->getTest() . "test");
+        //dd($repository->getTest() . "test");
+        return $this->getRenderer()->render('home/test');
 
-        return "Bienvenue";
     }
 
 }

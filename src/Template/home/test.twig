@@ -1,1 +1,9 @@
-{{ parent_template }}
+{% extends parent_template %}
+
+{% block body %}
+
+    {{ FormCreate('test', 'test') }}
+        {{ FormInput('test', 'text') }}
+    {{ FormEnd() }}
+
+{% endblock %}

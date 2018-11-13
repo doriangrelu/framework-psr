@@ -1,0 +1,111 @@
+<?php
+
+
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Posts
+ *
+ * @ORM\Table(name="posts", indexes={@ORM\Index(name="posts_users_FK", columns={"user_id"}), @ORM\Index(name="posts_cathegories0_FK", columns={"cathegory_id"}), @ORM\Index(name="FK_posts_families", columns={"family_id"})})
+ * @ORM\Entity
+ */
+class Posts
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="title", type="string", length=255, nullable=false)
+     */
+    private $title;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="slug", type="string", length=255, nullable=false)
+     */
+    private $slug;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="introduction", type="text", length=65535, nullable=false)
+     */
+    private $introduction;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="logo", type="string", length=255, nullable=true)
+     */
+    private $logo;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="header", type="string", length=255, nullable=true)
+     */
+    private $header;
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="published", type="boolean", nullable=true)
+     */
+    private $published;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created", type="datetime", nullable=false)
+     */
+    private $created;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modified", type="datetime", nullable=false)
+     */
+    private $modified;
+
+    /**
+     * @var \Families
+     *
+     * @ORM\ManyToOne(targetEntity="Families")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="family_id", referencedColumnName="id")
+     * })
+     */
+    private $family;
+
+    /**
+     * @var \Cathegories
+     *
+     * @ORM\ManyToOne(targetEntity="Cathegories")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="cathegory_id", referencedColumnName="id")
+     * })
+     */
+    private $cathegory;
+
+    /**
+     * @var \Users
+     *
+     * @ORM\ManyToOne(targetEntity="Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * })
+     */
+    private $user;
+
+
+}

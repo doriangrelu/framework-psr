@@ -13,3 +13,4 @@ define("BUNDLE", ROOT . "src" . DS . "Bundle" . DS);
 define("CONFIG", ROOT . "config" . DS);
 define("LOGS", ROOT . "Logs" . DS);
 define("TEMPLATE", ROOT . "src" . DS . "Template" . DS);
+define("PATH_ENTITY", ROOT . "src" . DS . "Database" . DS . "Entity" . DS);

@@ -24,12 +24,10 @@ if (php_sapi_name() !== "cli") {
         $response = $app->run(ServerRequest::fromGlobals());
         \Http\Response\send($response);
     } else {
-        try {
-            $response = $app->run(ServerRequest::fromGlobals());
-            \Http\Response\send($response);
-        } catch (Exception $e) {
-            \Http\Response\send(new Response(500, [], "Internal Error please contact administrator"));
-        }
+        $errorHandler = new \App\Event\ErrorHandler();
+        $errorHandler->register();
+        $response = $app->run(ServerRequest::fromGlobals());
+        \Http\Response\send($response);
     }
 } else {
     $app = new App();

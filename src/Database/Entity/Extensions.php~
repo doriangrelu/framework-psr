@@ -1,0 +1,46 @@
+<?php
+
+
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Extensions
+ *
+ * @ORM\Table(name="extensions")
+ * @ORM\Entity
+ */
+class Extensions
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="mime", type="string", length=20, nullable=false)
+     */
+    private $mime;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="editor", type="string", length=50, nullable=false)
+     */
+    private $editor;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="file_extension", type="string", length=50, nullable=false)
+     */
+    private $fileExtension;
+
+
+}

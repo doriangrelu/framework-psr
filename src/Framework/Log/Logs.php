@@ -47,7 +47,7 @@ class Logs
     private static function _checkFileSize($fileName): void
     {
         if (file_exists($fileName) && is_file($fileName) && filesize($fileName) >= 1024) {
-            rename($fileName, LOGS . $fileName . '.' . uniqid());
+            rename($fileName, $fileName . '.' . uniqid());
         }
     }
 

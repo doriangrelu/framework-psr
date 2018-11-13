@@ -11,10 +11,14 @@ namespace Framework;
 
 use App\Framework\Exception\RendererException;
 use Framework\Renderer\RendererFactory;
+use Framework\Utility\PrinterUtility;
 use Psr\Container\ContainerInterface;
 
 class Renderer
 {
+
+    use PrinterUtility;
+
     /**
      * @var array
      */
@@ -38,7 +42,7 @@ class Renderer
     /**
      * @var string
      */
-    private $layout ="default";
+    private $layout = "default";
 
     /**
      * Renderer constructor.
@@ -72,7 +76,7 @@ class Renderer
     private function getTwig(): \Twig_Environment
     {
         $twig = new \Twig_Environment($this->getLoader(), [
-            "cache" => Mode::is_prod()
+            "cache" => Mode::DEVELOPPEMENT === true,
         ]);
         if ($this->container->has('twig.extensions')) {
             foreach ($this->container->get('twig.extensions') as $extension) {
@@ -117,7 +121,7 @@ class Renderer
     public function render(string $viewName): string
     {
         $this->make([
-            "parent_template" => $this->layout,
+            "parent_template" => $this->_getFullLayoutName(),
             "active" => $this->activeTable
         ]);
         $viewName = str_replace(".", DS, $viewName);
@@ -126,7 +130,27 @@ class Renderer
             throw new RendererException("La vue <$viewName> n'existe pas");
         }
         $template = $this->getTwig()->load("$viewName.twig");
-        return $template->render($this->args);
+        $html = $template->render($this->args);
+
+        if(class_exists(\tidy::class)){
+            $tidy = new \tidy();
+            $config = array(
+                'indent'         => true,
+                'output-xhtml'   => true,
+                'wrap'           => 200);
+            $tidy->parseString($html, $config, 'utf8');
+            $tidy->cleanRepair();
+            return $tidy;
+        }
+
+        return $html;
+
+
+    }
+
+    private function _getFullLayoutName(): string
+    {
+        return ucfirst($this->layout) . '.twig';
     }
 
 }

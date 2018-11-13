@@ -10,6 +10,7 @@ use Framework\Cookie\PHPCookie;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Middleware\DispatcherMiddleware;
 use Framework\Middleware\EventsMiddleware;
+use Framework\Middleware\HttpMethodMiddleware;
 use Framework\Middleware\MethodMiddleware;
 use Framework\Middleware\NotFoundMiddleware;
 use Framework\Middleware\RouterMiddleware;
@@ -103,6 +104,7 @@ return [
      */
     "middlewares" => [
         TrailingSlashMiddleware::class,
+        HttpMethodMiddleware::class,
         EventsMiddleware::class,
         MethodMiddleware::class,
         CsrfMiddleware::class,

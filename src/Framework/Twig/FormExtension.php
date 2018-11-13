@@ -2,270 +2,180 @@
 
 namespace Framework\Twig;
 
-use Cake\Utility\Inflector;
-use function DI\string;
-use Framework\Validator\FieldTraduction;
+use Framework\Middleware\CsrfMiddleware;
+use Framework\Middleware\HttpMethodMiddleware;
+
 
 class FormExtension extends \Twig_Extension
 {
-    private $optionsHtml = [
-        //"required",
-        "data-type" => "text",
-        "data-required" => false,
-        "disabled",
-        "data-min" => false,
-        "data-max" => false,
-        "data-pattern" => false
-    ];
 
-    private $errorsHtml = [
-        "mail" => "Veuillez saisir une adresse mail",
-        "cp" => "Veuillez saisir un code postal",
-        "phone" => "Veuillez saisir numéro de téléphone",
-    ];
 
-    private function getHelperWithFieldName(array $options, string $fieldName): string
+    /**
+     * @var CsrfMiddleware
+     */
+    private $_csrfMiddleware;
+    /**
+     * @var HttpMethodMiddleware
+     */
+    private $_httpMethodMiddleware;
+
+    /**
+     * @var null
+     */
+    private $_entity = null;
+
+    /**
+     * FormHelper constructor.
+     * @param CsrfMiddleware $csrfMiddleware
+     * @param HttpMethodMiddleware $httpMethodMiddleware
+     */
+    public function __construct(CsrfMiddleware $csrfMiddleware, HttpMethodMiddleware $httpMethodMiddleware)
     {
-        if (isset($options["error"])) {
-            return $options["error"];
-        } else {
-            if (isset($this->errorsHtml[$fieldName])) {
-                return $this->errorsHtml[$fieldName];
-            }
-        }
-        return "Veuillez compléter ce champs";
+        $this->_csrfMiddleware = $csrfMiddleware;
+        $this->_httpMethodMiddleware = $httpMethodMiddleware;
     }
+
+    /**
+     * @param $entity
+     * @param $url
+     * @param string $method
+     * @param array $options
+     * @return string
+     * @throws \App\Framework\Exception\Http\HttpException
+     */
+    public function create($entity, $url, $method = 'POST', array $options = ['class' => 'form-test']): string
+    {
+        $this->_entity = $entity;
+        return <<<EOD
+<form method="$method" action="$url" {$this->_getOptions($options)}> 
+{$this->getCsrfHiddenInput()}
+{$this->getFormMethodHiddenInput($method)}
+EOD;
+    }
+
+    /**
+     * @param string $method
+     * @return string
+     * @throws \App\Framework\Exception\Http\HttpException
+     */
+    private function getFormMethodHiddenInput(string $method): string
+    {
+        $this->_httpMethodMiddleware->allowedMethodOrFail($method);
+        return '<input type="hidden" ' .
+            'name="' . $this->_httpMethodMiddleware->getFieldName() . '" ' .
+            'value="' . $method . '"/>';
+    }
+
+    /**
+     * @return string
+     */
+    public function getCsrfHiddenInput(): string
+    {
+        return '<input type="hidden" ' .
+            'name="' . $this->_csrfMiddleware->getFormKey() . '" ' .
+            'value="' . $this->_csrfMiddleware->generateToken() . '"/>';
+    }
+
+    /**
+     * @param string $name
+     * @param string $type
+     * @param array $options
+     * @return string
+     */
+    public function input(string $name, string $type = 'text', array $options = ['class' => 'form-control']): string
+    {
+        return <<<EDO
+<input type="$type" name="$name" value="" {$this->_getOptions($options)}>
+EDO;
+    }
+
+    /**
+     * @param string $name
+     * @param bool $required
+     * @param string $requiredClass
+     * @return string
+     */
+    public function getLabel(string $name, $required = false, $requiredClass = "required"): string
+    {
+        $options = [];
+        if ($required) {
+            $options = ['class' => $requiredClass];
+        }
+        return <<<EOD
+<label {$this->_getOptions($options)}>$name</label>
+EOD;
+
+    }
+
+    /**
+     * @param string $name
+     * @param array $valuesList
+     * @param array $options
+     * @return string
+     */
+    public function select(string $name, array $valuesList, array $options = [])
+    {
+        $selectOptions = [];
+        foreach ($valuesList as $value => $text) {
+            $selectOptions[] = <<<EOD
+<option value="$value">$text</option>
+EOD;
+        }
+        $selectOptionsString = implode(PHP_EOL, $selectOptions);
+        return <<<EOD
+<select name="$name" {$this->_getOptions($options)}>
+$selectOptionsString
+</select>
+EOD;
+    }
+
+    /**
+     * @return string
+     */
+    public function end()
+    {
+        return <<<EOD
+</form>
+EOD;
+    }
+
+    /**
+     * @param array $options
+     * @return string
+     */
+    private function _getOptions(array $options): string
+    {
+        $optionClean = [];
+        foreach ($options as $name => $values) {
+            $optionClean[] = <<<EOD
+$name="$values"
+EOD;
+        }
+        return implode(" ", $optionClean);
+    }
+
 
     public function getFunctions(): array
     {
         return [
-            new \Twig_SimpleFunction('field', [$this, 'field'], [
+            new \Twig_SimpleFunction('FormCreate', [$this, 'create'], [
                 'is_safe' => ['html'],
-                'needs_context' => true
+                'needs_context' => false
             ]),
-            new \Twig_SimpleFunction('name', [$this, "convertNameField"])
+            new \Twig_SimpleFunction('FormEnd', [$this, 'end'], [
+                'is_safe' => ['html'],
+                'needs_context' => false
+            ]),
+            new \Twig_SimpleFunction('FormInput', [$this, 'input'], [
+                'is_safe' => ['html'],
+                'needs_context' => false
+            ]),
+            new \Twig_SimpleFunction('FormSelect', [$this, 'select'], [
+                'is_safe' => ['html'],
+                'needs_context' => false
+            ]),
         ];
     }
 
-    /**
-     * Convertit le nom du champ depuis l'anglais, en français
-     * @param string $fieldName
-     * @return string
-     */
-    public function convertNameField(string $fieldName): string
-    {
-        $traductor = new FieldTraduction();
-        return $traductor->getFrenchName($fieldName);
-    }
 
-    private function getValues($context, string $key)
-    {
-        $key = lcfirst(Inflector::underscore($key));
-        if (isset($context["values"])) {
-            $values = $context["values"];
-            if (is_object($values)) {
-                $values = (array)$values;
-            }
-
-            if (isset($values[$key])) {
-
-                return $this->convertValue($values[$key]);
-            } else {
-                $key = lcfirst(Inflector::camelize($key));
-                if (isset($values[$key])) {
-                    return $this->convertValue($values[$key]);
-                }
-            }
-            return null;
-        }
-        return null;
-    }
-
-    /**
-     * @param array $context
-     * @param string $key
-     * @param array $options
-     * @return string
-     */
-    public function field(array $context, string $key, array $options = []): string
-    {
-        $type = $options['type'] ?? 'text';
-        $error = $this->getErrorHtml($context, $key);
-        $class = 'form-group ';
-        $class .= $options["divClass"] ?? "";
-        $fieldId = $key;
-        if (isset($options["label"])) {
-            $label = ucfirst($options["label"]);
-        } else {
-            $label = ucfirst($this->convertNameField($key));
-        }
-        if (isset($options["empty"]) && $options["empty"]) {
-            $value = null;
-        } else {
-            if (isset($options["value"])) {
-                $value = $this->convertValue($options["value"]);
-            } else {
-                $value = $this->convertValue($this->getValues($context, $key));
-            }
-        }
-        $otherAttributes = [];
-
-        $help = isset($options["help"]) ? '<small id="passwordHelpBlock" class="form-text text-muted">' . $options["help"] . '</small>' : null;
-        $attributes = [
-            'class' => trim('form-control ' . ($options['class'] ?? '')),
-            'name' => $key,
-            'id' => $key,
-
-        ];
-        if (isset($options["rule"])) {
-            $options["data"] = ["rule" => $options["rule"]];
-        }
-
-        if (isset($options["data"])) {
-            $attributes["data"] = $options["data"];
-
-        }
-        foreach ($options as $key => $attr) {
-            $name = "data-$key";
-            if (array_key_exists($name, $this->optionsHtml)) {
-                if ($key == "required") {
-                    $attr = "true";
-                    if (isset($attributes["class"])) {
-                        $attributes["class"] .= " required";
-                    } else {
-                        $attributes["class"] = " required";
-                    }
-                }
-                $otherAttributes[$name] = $attr;
-            }
-        }
-
-        $attributes = array_merge($attributes, $otherAttributes);
-
-        if ($error) {
-            $class .= ' has-danger';
-            $attributes['class'] .= ' form-control-danger';
-        }
-        $attributes["placeholder"] = $label;
-        if ($type === 'textarea') {
-            $input = $this->textarea($value, $attributes);
-        } elseif (array_key_exists('options', $options)) {
-            $input = $this->select($value, $options['options'], $attributes);
-        } else {
-            if ($type != "text" && $type != "number" && $type != "password") {
-                $type = "text";
-            }
-            $input = $this->input($value, $attributes, $type);
-        }
-        return "<div class=\"" . $class . "\">
-              <label for=\"name\">{$label}</label>
-              {$input}
-              {$error}
-              <div class='error-data-entry'>
-                 {$this->getHelperWithFieldName($options, $fieldId)}
-              </div>
-              </div>
-              ";
-    }
-
-
-    private function convertValue($value): string
-    {
-        if ($value instanceof \DateTime) {
-            return $value->format('Y-m-d H:i:s');
-        }
-        return (string)$value;
-    }
-
-    /**
-     * Génère l'HTML en fonction des erreurs du contexte
-     * @param $context
-     * @param $key
-     * @return string
-     */
-    private function getErrorHtml($context, $key)
-    {
-        $error = $context['errors'][$key] ?? false;
-        if ($error) {
-            return " <small class=\"form-text text-muted\">{$error}</small>";
-        }
-        return "";
-    }
-
-    /**
-     * @param null|string $value
-     * @param array $attributes
-     * @param string $type
-     * @return string
-     */
-    private
-    function input(?string $value, array $attributes, string $type): string
-    {
-        return "<input type=\"$type\" " . $this->getHtmlFromArray($attributes) . " value=\"{$value}\" {$this->data($attributes)}>";
-    }
-
-    private
-    function data(array $attributes):?string
-    {
-        if (isset($attributes["data"])) {
-            $data = "";
-            foreach ($attributes["data"] as $name => $value) {
-                $data .= "data-$name=\"$value\" ";
-            }
-            return trim($data);
-        }
-        return null;
-    }
-
-    /**
-     * Génère un <textarea>
-     * @param null|string $value
-     * @param array $attributes
-     * @return string
-     */
-    private
-    function textarea(?string $value, array $attributes): string
-    {
-        return "<textarea " . $this->getHtmlFromArray($attributes) . ">{$value}</textarea>";
-    }
-
-    /**
-     * Génère un <select>
-     * @param null|string $value
-     * @param array $options
-     * @param array $attributes
-     * @return string
-     */
-    private
-    function select(?string $value, array $options, array $attributes)
-    {
-        $htmlOptions = array_reduce(array_keys($options), function (string $html, string $key) use ($options, $value) {
-            $params = ['value' => $key, 'selected' => $key === $value];
-            return $html . '<option ' . $this->getHtmlFromArray($params) . '>' . $options[$key] . '</option>';
-        }, "");
-
-        return "<select " . $this->getHtmlFromArray($attributes) . ">$htmlOptions</select>";
-    }
-
-    /**
-     * Transforme un tableau $clef => $valeur en attribut HTML
-     * @param array $attributes
-     * @return string
-     */
-    private
-    function getHtmlFromArray(array $attributes)
-    {
-        $htmlParts = [];
-        foreach ($attributes as $key => $value) {
-            if (!is_array($value)) {
-                if ($value === true) {
-                    $htmlParts[] = (string)$key;
-                } elseif ($value !== false) {
-                    $htmlParts[] = "$key=\"$value\"";
-                }
-            }
-
-        }
-        return implode(' ', $htmlParts);
-    }
 }
