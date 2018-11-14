@@ -1,12 +1,16 @@
 <!DOCTYPE html>
+{% set debugbarRenderer =  debugBar.getJavascriptRenderer() %}
 <html lang="en">
 {% include "Elements/Layout/Default/head.twig" %}
 <body>
 {% include "Elements/Layout/Default/navbar.twig" %}
 {% include "Elements/Layout/Default/header.twig" %}
+
 {% block body %}
 
 {% endblock %}
 {% include "Elements/Layout/Default/js.twig" %}
+
+{{ debugbarRenderer.render() | raw }}
 </body>
 </html>

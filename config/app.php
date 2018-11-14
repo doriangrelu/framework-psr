@@ -1,12 +1,5 @@
 <?php
 
-use App\Event\ErrorHandler;
-use App\Framework\Auth\Auth;
-use App\Framework\Auth\AuthInterface;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
-use Framework\Cookie\CookieInterface;
-use Framework\Cookie\PHPCookie;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Middleware\DispatcherMiddleware;
 use Framework\Middleware\EventsMiddleware;
@@ -16,11 +9,6 @@ use Framework\Middleware\NotFoundMiddleware;
 use Framework\Middleware\RouterMiddleware;
 use Framework\Middleware\TrailingSlashMiddleware;
 use Framework\Mode;
-use Framework\Router;
-use Framework\Router\RouterInterface;
-use Framework\Session\ErrorsManager;
-use Framework\Session\PHPSession;
-use Framework\Session\SessionInterface;
 use Framework\Twig\ActiveExtension;
 use Framework\Twig\CsrfExtension;
 use Framework\Twig\CssExtension;
@@ -32,7 +20,6 @@ use Framework\Twig\RouterTwigExtension;
 use Framework\Twig\TextExtension;
 use Framework\Twig\TimeExtension;
 use Middlewares\Whoops;
-use Psr\Container\ContainerInterface;
 
 return [
 

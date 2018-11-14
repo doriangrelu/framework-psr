@@ -13,6 +13,7 @@ use Framework\Utility\ControllerUtility;
 class Controller
 {
     use ControllerUtility;
+
     public function __construct()
     {
 

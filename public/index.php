@@ -19,6 +19,7 @@ if (php_sapi_name() !== "cli") {
     if (App::container()->get("mode") === Mode::DEVELOPPEMENT) {
         $whoops = new \Whoops\Run;
         $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+        $whoops->sendHttpCode(500);
         $whoops->register();
 
         $response = $app->run(ServerRequest::fromGlobals());

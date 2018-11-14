@@ -10,6 +10,9 @@ namespace Framework;
 
 
 use App\Framework\Exception\RendererException;
+use DebugBar\DataCollector\PDO\PDOCollector;
+use DebugBar\DataCollector\PDO\TraceablePDO;
+use DebugBar\StandardDebugBar;
 use Framework\Renderer\RendererFactory;
 use Framework\Utility\PrinterUtility;
 use Psr\Container\ContainerInterface;
@@ -120,9 +123,11 @@ class Renderer
      */
     public function render(string $viewName): string
     {
+        $debugBar = $this->container->get(StandardDebugBar::class);
         $this->make([
             "parent_template" => $this->_getFullLayoutName(),
-            "active" => $this->activeTable
+            "active" => $this->activeTable,
+            "debugBar" => $this->container->get('mode') == Mode::DEVELOPPEMENT ? $debugBar : null,
         ]);
         $viewName = str_replace(".", DS, $viewName);
         $viewFile = TEMPLATE . $viewName . '.twig';
@@ -132,12 +137,12 @@ class Renderer
         $template = $this->getTwig()->load("$viewName.twig");
         $html = $template->render($this->args);
 
-        if(class_exists(\tidy::class)){
+        if (class_exists(\tidy::class)) {
             $tidy = new \tidy();
             $config = array(
-                'indent'         => true,
-                'output-xhtml'   => true,
-                'wrap'           => 200);
+                'indent' => true,
+                'output-xhtml' => true,
+                'wrap' => 200);
             $tidy->parseString($html, $config, 'utf8');
             $tidy->cleanRepair();
             return $tidy;
