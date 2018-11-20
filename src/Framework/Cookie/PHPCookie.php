@@ -45,7 +45,7 @@ class PHPCookie implements CookieInterface
      * @param string $name
      * @return mixed|null
      */
-    public function get(string $name):?mixed
+    public function get(string $name)
     {
         if($this->exist($name)){
             return $_COOKIE[$name];

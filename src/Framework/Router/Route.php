@@ -196,23 +196,6 @@ class Route
     }
 
     /**
-     * @param Role $role
-     * @return Route
-     */
-    public function require(Role $role): self
-    {
-        $this->roles[] = $role;
-        return $this;
-    }
-
-    /**
-     * @return Role[]|[]
-     */
-    public function getRequiredRoles():array {
-        return $this->roles;
-    }
-
-    /**
      * @param $param
      * @param $regex
      * @param bool $nullable
@@ -224,33 +207,4 @@ class Route
         return $this->where($param, $regex, $nullable);
     }
 
-
-    /**
-     * Bind middleware
-     * @param $middleware
-     * @return Route
-     */
-    public function bind($middleware): self
-    {
-        if (!in_array($middleware, $this->middlewares)) {
-            $this->middlewares[] = $middleware;
-        }
-        return $this;
-    }
-
-
-    public function getMiddlewares(): array
-    {
-        return $this->middlewares;
-    }
-
-    private function getMiddleware()
-    {
-        if (array_key_exists($this->index, $this->middlewares)) {
-            $middleware = $this->container->get($this->middlewares[$this->index]);
-            $this->index++;
-            return $middleware;
-        }
-        return null;
-    }
 }

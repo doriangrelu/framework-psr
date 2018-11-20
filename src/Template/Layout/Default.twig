@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% set debugbarRenderer =  debugBar.getJavascriptRenderer() %}
+
 <html lang="en">
 {% include "Elements/Layout/Default/head.twig" %}
 <body>
@@ -11,6 +11,5 @@
 {% endblock %}
 {% include "Elements/Layout/Default/js.twig" %}
 
-{{ debugbarRenderer.render() | raw }}
 </body>
 </html>

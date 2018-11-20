@@ -102,30 +102,10 @@ class App implements DelegateInterface
     }
 
 
-    private function bindRouteMiddleware(ServerRequestInterface $request)
-    {
-        $route = $this->getContainer()->get(Router::class)->match($this->request);
-        if (!is_null($route)) {
-            $middlewaresRoute = $route->getMiddlewares();
-            $binding = [];
-            $before = null;
-            foreach ($this->middlewares as $middleware) {
-                if ($before === LoggedInMiddleware::class) {
-                    foreach ($middlewaresRoute as $middlewareRoute) {
-                        $binding[] = $middlewareRoute;
-                    }
-                }
-                $binding[] = $middleware;
-                $before = $middleware;
-            }
-            $this->middlewares = $binding;
-        }
-    }
-
     /**
-     * Container Interface
-     * @return ContainerInterface
-     */
+ * Container Interface
+ * @return ContainerInterface
+ */
     public static function container(): ?ContainerInterface
     {
         return self::$containerForFacade;
@@ -152,7 +132,6 @@ class App implements DelegateInterface
         $this->request = $request;
         self::$containerForFacade = $this->getContainer();
         require "src/Routes/web.php";
-        $this->bindRouteMiddleware($request);
         $request = $request->withAttribute("container", $this->getContainer());
         return $this->process($request);
     }

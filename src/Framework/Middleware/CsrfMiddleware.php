@@ -4,6 +4,8 @@ namespace Framework\Middleware;
 
 use Framework\Cookie\CookieInterface;
 use Framework\Exception\CsrfInvalidException;
+use Framework\Session\SessionInterface;
+use Framework\Utility\RequestUtility;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -11,6 +13,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class CsrfMiddleware implements MiddlewareInterface
 {
+
+    use RequestUtility;
 
     /**
      * @var CookieInterface
@@ -33,18 +37,19 @@ class CsrfMiddleware implements MiddlewareInterface
     private $limit;
 
     /**
-     * @var \ArrayAccess
+     * @var SessionInterface
      */
     private $session;
 
     public function __construct(
-        &$session,
+        SessionInterface $session,
         CookieInterface &$cookie,
         int $limit = 50,
         string $formKey = '_csrf',
         string $sessionKey = 'csrf'
-    ) {
-        $this->cookie=$cookie;
+    )
+    {
+        $this->cookie = $cookie;
         $this->validSession($session);
         $this->session = &$session;
         $this->formKey = $formKey;
@@ -61,6 +66,13 @@ class CsrfMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate): ResponseInterface
     {
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE'])) {
+            if ($this->isAjaxRequest()) {
+                if ($this->_processAjaxRequest($request)) {
+                    return $delegate->process($request);
+                } else {
+                    $this->reject();
+                }
+            }
             $params = $request->getParsedBody() ?: [];
             if (!array_key_exists($this->formKey, $params)) {
                 $this->reject();
@@ -76,6 +88,29 @@ class CsrfMiddleware implements MiddlewareInterface
         } else {
             return $delegate->process($request);
         }
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return bool
+     */
+    private function _processAjaxRequest(ServerRequestInterface $request): bool
+    {
+        $key = $this->cookie->get($this->sessionKey);
+        $request = $request->withHeader('X-CSRF-Token', 'test');
+        $xCSRFHeader = $this->_getXCSRFHeader($request);
+
+        if (is_null($xCSRFHeader) || $xCSRFHeader !== $key) {
+            return false;
+        }
+        $this->generateToken();
+        return true;
+        // X-CSRF-Token
+    }
+
+    private function _getXCSRFHeader(ServerRequestInterface $request)
+    {
+        return $request->getHeader('X-CSRF-Token')[0] ?? null;
     }
 
     public function generateToken(): string
