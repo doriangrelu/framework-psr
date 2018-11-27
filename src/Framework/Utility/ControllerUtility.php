@@ -164,7 +164,7 @@ trait ControllerUtility
     }
 
     /**
-     * @param string $tableName
+     * @param string $entityName
      * @return EntityRepository
      */
     protected function getRepository(string $entityName): EntityRepository
