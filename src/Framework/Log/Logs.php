@@ -35,6 +35,7 @@ class Logs
      */
     public static function writte(string $scope, string $body): void
     {
+        //throw new \Exception();
         $fileName = LOGS . $scope . '.txt';
         self::_checkFileSize($fileName);
         $text = date('Y-m-d H:i:s') . ': ' . $body;
@@ -46,8 +47,8 @@ class Logs
      */
     private static function _checkFileSize($fileName): void
     {
-        if (file_exists($fileName) && is_file($fileName) && filesize($fileName) >= 1024) {
-            rename($fileName, $fileName . '.' . uniqid());
+        if (file_exists($fileName) && is_file($fileName) && filesize($fileName) >= 100000) {
+            rename($fileName, $fileName . '.' . time());
         }
     }
 

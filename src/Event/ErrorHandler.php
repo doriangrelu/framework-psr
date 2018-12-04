@@ -11,6 +11,7 @@ namespace App\Event;
 use App\Framework\Event\SubScriberInterface;
 use App\Framework\Exception\Http\HttpException;
 use Framework\App;
+use Framework\Log\Logs;
 use GuzzleHttp\Psr7\Response;
 use function Http\Response\send;
 use InvalidArgumentException;
@@ -38,6 +39,7 @@ class ErrorHandler implements SubScriberInterface
      */
     public function handleException($exception)
     {
+        Logs::writte('Error', $exception->getTraceAsString() . PHP_EOL . $exception->getMessage() . PHP_EOL . PHP_EOL . "###############################################################################################" . PHP_EOL . PHP_EOL);
         $error = [
             'type' => 'EXCEPTION',
             'data' => $exception,
@@ -65,6 +67,8 @@ class ErrorHandler implements SubScriberInterface
      */
     public function handleError($level, $message, $file = null, $line = null)
     {
+        $errorMessage = "$level error in $file as line $line: $message";
+        Logs::writte("Error", $errorMessage);
         $error = [
             'type' => 'ERROR',
             'data' => [
@@ -115,7 +119,7 @@ class ErrorHandler implements SubScriberInterface
         ));
         $template = $twig->load('Errors' . DS . 'error.twig');
         return $template->render([
-            'error'=>$error
+            'error' => $error
         ]);
     }
 

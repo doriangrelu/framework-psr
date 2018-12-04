@@ -1,0 +1,58 @@
+2018-12-04 17:49:55: #0 [internal function]: Framework\Middleware\NotFoundMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#1 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\NotFoundMiddleware), Array)
+#2 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\DispatcherMiddleware.php(40): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#3 [internal function]: Framework\Middleware\DispatcherMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#4 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\DispatcherMiddleware), Array)
+#5 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\RouterMiddleware.php(27): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#6 [internal function]: Framework\Middleware\RouterMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#7 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\RouterMiddleware), Array)
+#8 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\CsrfMiddleware.php(89): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#9 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(75): Framework\Middleware\CsrfMiddleware->process(Object(GuzzleHttp\Psr7\ServerRequest), Object(Framework\App))
+#10 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\MethodMiddleware.php(19): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#11 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(75): Framework\Middleware\MethodMiddleware->process(Object(GuzzleHttp\Psr7\ServerRequest), Object(Framework\App))
+#12 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\EventsMiddleware.php(43): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#13 [internal function]: Framework\Middleware\EventsMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#14 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\EventsMiddleware), Array)
+#15 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\HttpMethodMiddleware.php(35): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#16 [internal function]: Framework\Middleware\HttpMethodMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#17 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\HttpMethodMiddleware), Array)
+#18 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\TrailingSlashMiddleware.php(24): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#19 [internal function]: Framework\Middleware\TrailingSlashMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#20 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\TrailingSlashMiddleware), Array)
+#21 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(111): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#22 F:\01 - DEV\01 - WEB\PHP\framework\public\index.php(30): Framework\App->run(Object(GuzzleHttp\Psr7\ServerRequest))
+#23 {main}
+Not Found
+
+###############################################################################################
+
+
+2018-12-04 17:49:56: #0 [internal function]: Framework\Middleware\NotFoundMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#1 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\NotFoundMiddleware), Array)
+#2 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\DispatcherMiddleware.php(40): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#3 [internal function]: Framework\Middleware\DispatcherMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#4 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\DispatcherMiddleware), Array)
+#5 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\RouterMiddleware.php(27): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#6 [internal function]: Framework\Middleware\RouterMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#7 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\RouterMiddleware), Array)
+#8 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\CsrfMiddleware.php(89): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#9 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(75): Framework\Middleware\CsrfMiddleware->process(Object(GuzzleHttp\Psr7\ServerRequest), Object(Framework\App))
+#10 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\MethodMiddleware.php(19): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#11 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(75): Framework\Middleware\MethodMiddleware->process(Object(GuzzleHttp\Psr7\ServerRequest), Object(Framework\App))
+#12 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\EventsMiddleware.php(43): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#13 [internal function]: Framework\Middleware\EventsMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#14 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\EventsMiddleware), Array)
+#15 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\HttpMethodMiddleware.php(35): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#16 [internal function]: Framework\Middleware\HttpMethodMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#17 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\HttpMethodMiddleware), Array)
+#18 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\Middleware\TrailingSlashMiddleware.php(24): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#19 [internal function]: Framework\Middleware\TrailingSlashMiddleware->__invoke(Object(GuzzleHttp\Psr7\ServerRequest), Array)
+#20 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(73): call_user_func_array(Object(Framework\Middleware\TrailingSlashMiddleware), Array)
+#21 F:\01 - DEV\01 - WEB\PHP\framework\src\Framework\App.php(111): Framework\App->process(Object(GuzzleHttp\Psr7\ServerRequest))
+#22 F:\01 - DEV\01 - WEB\PHP\framework\public\index.php(30): Framework\App->run(Object(GuzzleHttp\Psr7\ServerRequest))
+#23 {main}
+Not Found
+
+###############################################################################################
+
+

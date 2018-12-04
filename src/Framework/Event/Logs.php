@@ -28,8 +28,12 @@ class Logs implements SubScriberInterface
 
     public function accessLog(ServerRequestInterface $request)
     {
-        $body = $_SERVER['REMOTE_ADDR'] . ' access to ' . $request->getUri()->getHost() . $request->getUri()->getPath() . '?'. $request->getUri()->getQuery();
-       \Framework\Log\Logs::writte(\Framework\Log\Logs::LOG_ACCESS, $body);
+        $body = $_SERVER['REMOTE_ADDR'] .
+            ' access to ' .
+            $request->getUri()->getHost() . $request->getUri()->getPath() . '?' . $request->getUri()->getQuery() .
+            ' method: ' . $request->getMethod() . ' protocol: ' . $request->getProtocolVersion();
+
+        \Framework\Log\Logs::writte(\Framework\Log\Logs::LOG_ACCESS, $body);
     }
 
     // Function to get the client ip address
