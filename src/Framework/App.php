@@ -3,10 +3,8 @@
 namespace Framework;
 
 use App\Framework\Event\Emitter;
-use App\Framework\Event\SubScriberInterface;
-use DI\ContainerBuilder;
-use Doctrine\Common\Cache\FilesystemCache;
-use Framework\Middleware\LoggedInMiddleware;
+use App\Provider\ProviderManager;
+use Framework\Provider\AbstractProvider;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Container\ContainerInterface;
@@ -17,15 +15,13 @@ class App implements DelegateInterface
 {
 
     /**
-     * @var array
-     */
-    private $definition = [];
-
-    /**
      * @var ContainerInterface
      */
     private $container;
-
+    /**
+     * @var AbstractProvider
+     */
+    private $provider;
     /**
      * @var
      */
@@ -41,10 +37,6 @@ class App implements DelegateInterface
      */
     private $index = 0;
 
-    /**
-     * @var SubScriberInterface[]
-     */
-    private $subScribers = [];
 
     /**
      * @var ServerRequestInterface
@@ -53,34 +45,17 @@ class App implements DelegateInterface
 
     /**
      * App constructor.
-     * @throws \App\Framework\Event\DoubleEventException
+     * @throws \Exception
      */
     public function __construct()
     {
-        $definitions = require "config/app.php";
-        $arrayDefinitions = require 'config/services.php';
-
-        if (is_array($definitions)) {
-            foreach ($definitions as $type => $definition) {
-                switch ($type) {
-                    case "middlewares":
-                        $this->middlewares = $definition;
-                        break;
-                    case "twig.extensions":
-                        $arrayDefinitions[$type] = $definition;
-                        break;
-                    case "subscribers":
-                        $this->subScribers = array_merge($this->subScribers, $definition);
-                        break;
-                    default:
-                        $arrayDefinitions = array_merge($arrayDefinitions, $definition);
-                        break;
-                }
-            }
-            $this->definition[] = $arrayDefinitions;
-            self::$containerForFacade = $this->getContainer();
-            $this->addHandler();
-        }
+        $config = require "config/app.php";
+        $provider = new ProviderManager($config);
+        $this->provider = $provider;
+        $this->container = $provider->getContainer();
+        $this->middlewares = $provider->getMiddlewares();
+        self::$containerForFacade = $provider->getContainer();
+        $this->attachEvents();
     }
 
 
@@ -103,9 +78,9 @@ class App implements DelegateInterface
 
 
     /**
- * Container Interface
- * @return ContainerInterface
- */
+     * Container Interface
+     * @return ContainerInterface
+     */
     public static function container(): ?ContainerInterface
     {
         return self::$containerForFacade;
@@ -114,9 +89,9 @@ class App implements DelegateInterface
     /**
      * @throws \App\Framework\Event\DoubleEventException
      */
-    private function addHandler()
+    private function attachEvents()
     {
-        foreach ($this->subScribers as $subscriber) {
+        foreach ($this->provider->getEvents() as $subscriber) {
             $this->getContainer()->get(Emitter::class)->addSubScriber($this->getContainer()->get($subscriber));
         }
     }
@@ -138,24 +113,11 @@ class App implements DelegateInterface
 
     /**
      * @return ContainerInterface
+     * @throws \Exception
      */
     public function getContainer(): ContainerInterface
     {
-        if ($this->container === null) {
-            $builder = new ContainerBuilder();
-            $env = getenv('ENV') ?: 'dev';
-            if ($env === 'production') {
-                $builder->setDefinitionCache(new FilesystemCache('tmp/di'));
-                $builder->writeProxiesToFile(true, 'tmp/proxies');
-            }
-            foreach ($this->definition as $definition) {
-                $builder->addDefinitions($definition);
-            }
-
-            $this->container = $builder->build();
-        }
-
-        return $this->container;
+        return $this->provider->getContainer();
     }
 
     /**

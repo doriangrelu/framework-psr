@@ -18,7 +18,6 @@ class Container
      * @param $name
      * @param $arguments
      * @return mixed
-     * @throws ContainerFacadeException
      */
     public static function __callStatic($name, $arguments)
     {

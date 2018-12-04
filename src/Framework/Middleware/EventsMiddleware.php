@@ -35,7 +35,7 @@ class EventsMiddleware
         $eventManager= $this->_container->get(Emitter::class);
         $logsListener = $this->_container->get(Logs::class);
         $eventManager->addSubScriber($logsListener);
-        $subscribers = require CONFIG. 'events.php';
+        $subscribers = $this->_container->get('events');
         foreach($subscribers as $subscriber){
             $eventManager->addSubScriber($this->_container->get($subscriber));
         }

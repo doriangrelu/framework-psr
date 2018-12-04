@@ -43,7 +43,7 @@ class CsrfMiddleware implements MiddlewareInterface
 
     public function __construct(
         SessionInterface $session,
-        CookieInterface &$cookie,
+        CookieInterface $cookie,
         int $limit = 50,
         string $formKey = '_csrf',
         string $sessionKey = 'csrf'

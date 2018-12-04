@@ -24,7 +24,7 @@
     "guzzlehttp/psr7": "^1.4",
     "http-interop/response-sender": "^1.0",
     "twig/twig": "^2.4",
-    "php-di/php-di": "^5.4",
+    "php-di/php-di": "^6.0",
     "pagerfanta/pagerfanta": "^1.0",
     "middlewares/whoops": "^0.4.1",
     "doctrine/cache": "~1.4",

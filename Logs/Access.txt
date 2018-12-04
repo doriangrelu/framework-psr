@@ -1,4 +1,6 @@
-2018-11-20 15:12:43: 127.0.0.1 access to 127.0.0.1/framework/?
-2018-11-20 15:12:44: 127.0.0.1 access to 127.0.0.1/framework/?
-2018-11-20 15:12:46: 127.0.0.1 access to 127.0.0.1/framework/test?
-2018-11-20 15:12:47: 127.0.0.1 access to 127.0.0.1/framework/?
+2018-12-04 17:35:30: 127.0.0.1 access to framework.local/?
+2018-12-04 17:35:35: 127.0.0.1 access to framework.local/?
+2018-12-04 17:39:08: 127.0.0.1 access to framework.local/?
+2018-12-04 17:39:09: 127.0.0.1 access to framework.local/?
+2018-12-04 17:39:09: 127.0.0.1 access to framework.local/?
+2018-12-04 17:39:09: 127.0.0.1 access to framework.local/?

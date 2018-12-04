@@ -9,6 +9,7 @@
 namespace Framework\Validator;
 
 use App\Framework\Exception\Type\UnexpectedTypeException;
+use App\Framework\Exception\ValidatorException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -16,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * Class Validator
  * @package Framework\Validator
  */
-class Validator
+class Validator implements ValidatorInterface
 {
     const MAX_SIZE = 1;
     const MIN_SIZE = 2;
@@ -24,6 +25,7 @@ class Validator
     const REQUIRED = 4;
     const UNIQUE = 5;
     const EXISTS = 6;
+    const NOT_EMPTY = 7;
 
     /**
      * @var array
@@ -35,7 +37,15 @@ class Validator
         self::REQUIRED => 'Le champs est recquis',
         self::UNIQUE => 'La valeur est déjà utilisée',
         self::EXISTS => "La valeur n'existe pas",
+        self::NOT_EMPTY => "Le champs ne peut être vide"
     ];
+
+    private $_errorFieldTemplate = <<<EOD
+<div class="alert alert-danger form-error">
+{{errors}}
+</div>
+EOD;
+
 
     /**
      * @var string[]
@@ -43,17 +53,17 @@ class Validator
     private $_allowedEmpty = [];
 
     /**
+     * @var string[]
+     */
+    private $_emptyFields = [];
+
+    /**
      * @var EntityManagerInterface
      */
     private $_doctrineService;
 
     /**
-     * @var ServerRequestInterface
-     */
-    private $_request;
-
-    /**
-     * @var string[]
+     * @var array
      */
     private $_errors = [];
 
@@ -71,16 +81,30 @@ class Validator
     public function __construct(EntityManagerInterface $entityManager, ServerRequestInterface $request)
     {
         $this->_doctrineService = $entityManager;
-        $this->_request = $request;
         $this->_data = $request->getParsedBody();
     }
 
     /**
+     * @param string $template
+     * @return Validator
+     * @throws ValidatorException
+     */
+    public function setErrorsTemplate(string $template): ValidatorInterface
+    {
+        if (strpos($template, '{{errors}}') === false) {
+            throw new ValidatorException("Missing flag {{errors}} in error template definition.");
+        }
+        $this->_errorFieldTemplate = $template;
+        return $this;
+    }
+
+    /**
      * @param array $sizes
+     * @param bool $secureBody
      * @return Validator
      * @throws UnexpectedTypeException
      */
-    public function truncateBody(array $sizes, $secureBody = true): self
+    public function truncateBody(array $sizes, $secureBody = true): ValidatorInterface
     {
         if ($secureBody) {
             $this->allowFields($sizes, false);
@@ -102,7 +126,7 @@ class Validator
      * @param bool $flip
      * @return Validator
      */
-    public function allowFields(array $allowedFields, $flip = true): self
+    public function allowFields(array $allowedFields, $flip = true): ValidatorInterface
     {
         if ($flip) {
             $allowedFields = array_flip($allowedFields);
@@ -120,7 +144,7 @@ class Validator
      * @param string $tableName
      * @return Validator
      */
-    public function unqique(string $fieldName, string $tableName): self
+    public function unique(string $fieldName, string $tableName): ValidatorInterface
     {
         $repository = $this->_doctrineService->getRepository($tableName);
 
@@ -142,7 +166,7 @@ class Validator
      * @param string $tableFieldName
      * @return Validator
      */
-    public function existsIn(string $fieldName, string $tableName, string $tableFieldName = 'id'): self
+    public function existsIn(string $fieldName, string $tableName, string $tableFieldName = 'id'): ValidatorInterface
     {
         $value = $this->_getValue($fieldName);
         if (is_null($value)) {
@@ -166,7 +190,7 @@ class Validator
      * @param bool $isFormated
      * @return Validator
      */
-    public function pattern(string $fieldName, string $pattern, string $formatText, bool $isFormated = false): self
+    public function pattern(string $fieldName, string $pattern, string $formatText, bool $isFormated = false): ValidatorInterface
     {
         $value = $this->_getValue($fieldName);
         if (is_null($value)) {
@@ -184,7 +208,7 @@ class Validator
      * @param string $fieldName
      * @return Validator
      */
-    public function allowEmpty(string $fieldName): self
+    public function allowEmpty(string $fieldName): ValidatorInterface
     {
         $value = $this->_getValue($fieldName);
         if (is_null($value) || (trim($value)) == '') {
@@ -194,13 +218,26 @@ class Validator
         return $this;
     }
 
+    public function notEmpty(string $fieldName): ValidatorInterface
+    {
+        $value = $this->_getValue($fieldName);
+        if (is_null($value) || (trim($value)) == '') {
+            $this->_emptyFields[] = $fieldName;
+            $this->_cleanAllErrors($fieldName);
+            $this->_addError($fieldName, self::NOT_EMPTY);
+        }
+        return $this;
+    }
+
     /**
      * @param string $fieldName
      * @return Validator
      */
-    public function required(string $fieldName): self
+    public function required(string $fieldName): ValidatorInterface
     {
         if (is_null($this->_getValue($fieldName))) {
+            $this->_cleanAllErrors($fieldName);
+            $this->_emptyFields[] = $fieldName;
             $this->_addError($fieldName, self::REQUIRED);
         }
         return $this;
@@ -212,7 +249,7 @@ class Validator
      * @param int $sizeMax
      * @return Validator
      */
-    public function limit(string $fieldName, int $sizeMin, int $sizeMax = 255): self
+    public function limit(string $fieldName, int $sizeMin, int $sizeMax = 255): ValidatorInterface
     {
         if (!is_null($this->_getValue($fieldName))) {
             $size = mb_strlen($this->_getValue($fieldName));
@@ -234,6 +271,11 @@ class Validator
      */
     private function _addError(string $fieldName, string $errorKey, array $replacements = []): void
     {
+        $flippedEmpty = array_flip($this->_emptyFields);
+        if (isset($flippedEmpty[$fieldName]) && (int)$errorKey !== (int)self::NOT_EMPTY && (int)$errorKey !== (int)self::REQUIRED) {
+            return;
+        }
+
         $flippedArray = array_flip($this->_allowedEmpty);
         if (!isset($flippedArray[$fieldName])) {
             $text = $this->_textErrors[$errorKey] ?? 'Le champs est recquis au bon format';
@@ -291,9 +333,9 @@ class Validator
 
     /**
      * @param string $fieldName
-     * @return string
+     * @return null|string
      */
-    private function _getValue(string $fieldName): string
+    private function _getValue(string $fieldName): ?string
     {
         return $this->_data[$fieldName] ?? null;
     }
@@ -304,6 +346,45 @@ class Validator
     public function isValid(): bool
     {
         return empty($this->_errors);
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrors(): array
+    {
+        return $this->_errors;
+    }
+
+    /**
+     * @param string $fieldName
+     * @return string
+     */
+    public function getHTMLError(string $fieldName): string
+    {
+        $errors = $this->_errors[$fieldName] ?? [];
+        if (empty($errors)) {
+            return '';
+        }
+        $listHTML = <<<EOD
+<ul>
+{{li}}
+</ul>
+EOD;
+        $errors = array_map(function ($value) {
+            return "<li>$value</li>";
+        }, $errors);
+        $listHTML = str_replace('{{li}}', implode(PHP_EOL, $errors), $listHTML);
+        return str_replace('{{errors}}', $listHTML, $this->_errorFieldTemplate);
+    }
+
+    /**
+     * @param string $fieldName
+     * @return array|null
+     */
+    public function getError(string $fieldName): ?array
+    {
+        return $this->_errors[$fieldName] ?? null;
     }
 
 }
