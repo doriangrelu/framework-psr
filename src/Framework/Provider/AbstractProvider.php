@@ -170,15 +170,29 @@ abstract class AbstractProvider
     /**
      * @param $middleware
      * @return AbstractProvider
+     * @throws ProviderException
      */
     protected function _addMiddleware($middleware): AbstractProvider
     {
+        $flipped = array_flip($this->_middlewares);
+        if(isset($flipped[$middleware])){
+            throw new ProviderException("Middleware already exists in container: $middleware");
+        }
         $this->_middlewares[] = $middleware;
         return $this;
     }
 
+    /**
+     * @param $definition
+     * @return AbstractProvider
+     * @throws ProviderException
+     */
     protected function _addTwigDefinition($definition): AbstractProvider
     {
+        $flipped = array_flip($this->_definitionsContainer['twig.extensions']);
+        if(isset($flipped[$definition])){
+            throw new ProviderException("Twig extension already user in container: $definition");
+        }
         $this->_definitionsContainer['twig.extensions'][] = $definition;
         return $this;
     }
