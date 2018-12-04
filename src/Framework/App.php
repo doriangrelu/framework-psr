@@ -88,6 +88,7 @@ class App implements DelegateInterface
 
     /**
      * @throws \App\Framework\Event\DoubleEventException
+     * @throws \Exception
      */
     private function attachEvents()
     {
