@@ -19,9 +19,7 @@ use Psr\Container\ContainerInterface;
 
 class Renderer
 {
-
     use PrinterUtility;
-
     /**
      * @var array
      */
@@ -31,11 +29,6 @@ class Renderer
      * @var ContainerInterface
      */
     private $container;
-
-    /**
-     * @var RendererFactory
-     */
-    private $factory;
 
     /**
      * @var array
@@ -132,7 +125,7 @@ class Renderer
         $viewName = str_replace(".", DS, $viewName);
         $viewFile = TEMPLATE . $viewName . '.twig';
         if (!is_file($viewFile)) {
-            throw new RendererException("La vue <$viewName> n'existe pas");
+            throw new RendererException("Missing view $viewName");
         }
         $template = $this->getTwig()->load("$viewName.twig");
         $html = $template->render($this->args);
