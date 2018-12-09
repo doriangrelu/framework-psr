@@ -19,7 +19,9 @@ use Psr\Container\ContainerInterface;
 
 class Renderer
 {
+
     use PrinterUtility;
+
     /**
      * @var array
      */

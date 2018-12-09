@@ -9,7 +9,6 @@
 namespace App\Controllers;
 
 use App\Framework\Controller;
-use App\Framework\Exception\RendererException;
 
 
 class BaseController extends Controller
